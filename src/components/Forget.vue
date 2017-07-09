@@ -30,11 +30,12 @@
       </mu-tbody>
     </mu-table>
     <mu-dialog :open="dialog" @close="close" title="新增提醒" scrollable>
-      <mu-text-field label="标题" hintText="请输入标题" labelFloat /><br/>
+      <mu-text-field label="提醒标题" hintText="请输入标题" labelFloat /><br/>
       <mu-text-field label="提醒内容" hintText="请输入提醒内容" labelFloat /><br/>
-      <mu-date-picker hintText="请选择日期"　/> <br/>
-      <mu-time-picker hintText="请选择时间" format="24hr"　/><br/>
-      <mu-flat-button primary label="关闭" @click="close" slot="actions"　/>
+      <mu-date-picker hintText="请选择提醒日期"　/> <br/>
+      <mu-time-picker hintText="请选择提醒时间" format="24hr"　/><br/>
+      <mu-raised-button label="取消"　primary slot="actions" @click="close" />
+      <mu-raised-button label="确定" secondary slot="actions" @click="close" />
     </mu-dialog>
   </div>
 </template>
@@ -43,13 +44,8 @@
 export default {
   name: 'forget',
   data() {
-    const menus = [];
-    for (let i = 0; i < 30; i += 1) {
-      menus.push(i + 1);
-    }
     return {
       dialog: false,
-      menus,
       tableData: [
         {
           title: '提交代码',
