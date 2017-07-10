@@ -8,6 +8,10 @@
       <mu-flat-button label="历史提醒" slot="right" />
     </mu-appbar>
     <Loading v-if="loading" />
+    <mu-paper class="demo-paper" :zDepth="3" v-if="this.scheduleData && this.scheduleData.length === 0">
+      <div slot="default">{{noDataTitle}}</div>
+    </mu-paper>
+    <!-- <NoSchedule v-if="this.scheduleData && this.scheduleData.length === 0" :title="noDataTitle"/> -->
     <mu-table
       :fixedFooter="fixedFooter"
       :fixedHeader="fixedHeader"
@@ -15,7 +19,8 @@
       :multiSelectable="multiSelectable"
       :selectable="selectable"
       :showCheckbox="showCheckbox"
-      v-if="this.ScheduleData && this.ScheduleData.length > 0"
+      v-if="this.scheduleData && this.scheduleData.length > 0"
+      class="schedule-table"
     >
       <mu-thead slot="header">
         <mu-tr>
@@ -28,7 +33,7 @@
         </mu-tr>
       </mu-thead>
       <mu-tbody>
-        <mu-tr v-for="item,index in ScheduleData"  :key="index" :selected="item.selected">
+        <mu-tr v-for="item,index in scheduleData"  :key="index" :selected="item.selected">
           <mu-td>{{index + 1}}</mu-td>
           <mu-td>{{item.title}}</mu-td>
           <mu-td>{{item.events}}</mu-td>
@@ -55,18 +60,21 @@
 <script>
 import _ from 'lodash';
 import Loading from './Loading';
+import NoSchedule from './NoSchedule';
 
 export default {
   name: 'forget',
   components: {
     Loading,
+    NoSchedule,
   },
   data() {
     return {
       dialog: false,
       loading: false,
       error: null,
-      ScheduleData: null,
+      noDataTitle: '您今天暂时还没有提醒事项，赶紧来创建一个吧~~~',
+      scheduleData: null,
       fixedHeader: true,
       fixedFooter: false,
       selectable: true,
@@ -89,19 +97,22 @@ export default {
   methods: {
     fetchSchedule() {
       this.error = null;
-      this.ScheduleData = null;
+      this.scheduleData = null;
       this.loading = true;
       setTimeout(() => {
+        console.log('before', this.loading);
         this.loading = false;
-        this.ScheduleData = [
-          {
-            id: 1,
-            title: '提交代码',
-            events: '下午记得提交代码',
-            remindTime: '2017-07-10 15:23',
-            createTime: '2017-07-10 10:23',
-          },
-        ];
+        console.log('after', this.loading);
+        this.scheduleData = [];
+        // this.scheduleData = [
+        //   {
+        //     id: 1,
+        //     title: '提交代码',
+        //     events: '下午记得提交代码',
+        //     remindTime: '2017-07-10 15:23',
+        //     createTime: '2017-07-10 10:23',
+        //   },
+        // ];
       }, 1000);
     },
     open() {
@@ -120,10 +131,10 @@ export default {
     },
     deleteSchedule(schedule) {
       const existIndex = _.findIndex(
-        this.ScheduleData, o => o.id === schedule.id,
+        this.scheduleData, o => o.id === schedule.id,
       );
       if (existIndex > -1) {
-        this.ScheduleData.splice(existIndex, 1);
+        this.scheduleData.splice(existIndex, 1);
       }
     },
     addNewSchedule() {
@@ -140,13 +151,13 @@ export default {
         };
         if (this.newSchedule.id > 0) {
           existIndex = _.findIndex(
-            this.ScheduleData, o => o.id === this.newSchedule.id,
+            this.scheduleData, o => o.id === this.newSchedule.id,
           );
         }
         if (existIndex > -1) {
-          this.ScheduleData.splice(existIndex, 1, newSchedule);
+          this.scheduleData.splice(existIndex, 1, newSchedule);
         } else {
-          this.ScheduleData.push(_.assign(newSchedule, { id: this.ScheduleData.length + 1 }));
+          this.scheduleData.push(_.assign(newSchedule, { id: this.scheduleData.length + 1 }));
         }
         this.resetNewSchedule();
         this.close();
@@ -181,7 +192,19 @@ export default {
   position: relative;
   float: left;
 }
+
+.schedule-table {
+  margin-top: 5vh;
+}
+
 .modify-btn {
   margin-right: 1.5rem;
+}
+
+.demo-paper {
+  display: inline-block;
+  padding: 0.5vw;
+  margin: 2vw;
+  text-align: center;
 }
 </style>
