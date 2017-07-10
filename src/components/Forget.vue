@@ -35,7 +35,7 @@
       <mu-date-picker hintText="请选择提醒日期"　v-model="newSchedule.selectDate" fullWidth required /> <br/>
       <mu-time-picker hintText="请选择提醒时间" v-model="newSchedule.selectTime" format="24hr"　fullWidth required /><br/>
       <mu-raised-button label="取消"　primary slot="actions" @click="close" />
-      <mu-raised-button label="确定" secondary slot="actions" @click="close" />
+      <mu-raised-button label="确定" secondary slot="actions" @click="addNewSchedule" />
     </mu-dialog>
   </div>
 </template>
@@ -75,6 +75,13 @@ export default {
     },
     close() {
       this.dialog = false;
+    },
+    addNewSchedule() {
+      const checked = this.newSchedule.title && this.newSchedule.events
+      && this.newSchedule.selectDate && this.newSchedule.selectTime;
+      if (checked) {
+        this.dialog = false;
+      }
     },
   },
 };
