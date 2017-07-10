@@ -7,6 +7,7 @@
       <mu-flat-button label="新增提醒" slot="right" @click="open" />
       <mu-flat-button label="历史提醒" slot="right" />
     </mu-appbar>
+    <Loading v-if="loading" />
     <mu-table
       :fixedFooter="fixedFooter"
       :fixedHeader="fixedHeader"
@@ -14,6 +15,7 @@
       :multiSelectable="multiSelectable"
       :selectable="selectable"
       :showCheckbox="showCheckbox"
+      v-if="this.ScheduleData && this.ScheduleData.length > 0"
     >
       <mu-thead slot="header">
         <mu-tr>
@@ -52,9 +54,13 @@
 
 <script>
 import _ from 'lodash';
+import Loading from './Loading';
 
 export default {
   name: 'forget',
+  components: {
+    Loading,
+  },
   data() {
     return {
       dialog: false,
@@ -96,7 +102,7 @@ export default {
             createTime: '2017-07-10 10:23',
           },
         ];
-      });
+      }, 1000);
     },
     open() {
       this.dialog = true;
