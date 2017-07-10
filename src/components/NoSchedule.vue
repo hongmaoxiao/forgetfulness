@@ -23,7 +23,7 @@ export default {
 <style scoped>
 .no-schedule-paper {
   display: inline-block;
-  padding: 0.5vw;
+  padding: 0.5vw 3vw;
   margin: 2vw;
   text-align: center;
 }
