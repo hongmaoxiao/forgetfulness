@@ -64,6 +64,7 @@ import Loading from './Loading';
 import NoSchedule from './NoSchedule';
 
 axios.defaults.headers.common['Content-type'] = 'application/json';
+axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 export default {
   name: 'forget',
@@ -158,11 +159,70 @@ export default {
         if (existIndex > -1) {
           this.scheduleData.splice(existIndex, 1, newSchedule);
         } else {
+          this.postNewSchedule(newSchedule);
           this.scheduleData.push(_.assign(newSchedule, { id: this.scheduleData.length + 1 }));
         }
         this.resetNewSchedule();
         this.close();
       }
+    },
+    postNewSchedule(data) {
+      axios.post('/schedule/edit', {
+        title: data.title,
+        events: data.events,
+        remind_time: data.remindTime,
+        uid: '1',
+      })
+      .then(
+        (response) => {
+          console.log('post： ', response);
+        },
+      )
+      .catch(
+        (error) => {
+          console.log('错误： ', error);
+        },
+      );
+      // const params = new URLSearchParams();
+      // params.append('title', data.title);
+      // params.append('events', data.events);
+      // params.append('remind_time', data.remindTime);
+      // params.append('uid', 1);
+      // this.$http.post('/schedule/edit', {
+      //   title: data.title,
+      //   events: data.events,
+      //   remind_time: data.remindTime,
+      //   uid: 1,
+      // })
+      // .then((res) => {
+      //   if (res.status === 200) {
+      //     console.log('res: ', res);
+      //   } else {
+      //     alert('用户名或者密码错误！');
+      //   }
+      // }, () => {
+      //   console.log('错误：');
+      // });
+      // const postData = {
+      //   title: data.title,
+      //   events: data.events,
+      //   remind_time: data.remindTime,
+      //   uid: 1,
+      // };
+      // axios({
+      //   method: 'post',
+      //   url: '/schedule/edit',
+      //   data: JSON.stringify(postData),
+      // }).then(
+      //   (response) => {
+      //     console.log('post： ', response);
+      //   },
+      // )
+      // .catch(
+      //   (error) => {
+      //     console.log('错误： ', error);
+      //   },
+      // );
     },
     resetNewSchedule() {
       this.newSchedule = {
