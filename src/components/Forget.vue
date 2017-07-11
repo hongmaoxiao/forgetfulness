@@ -59,8 +59,11 @@
 
 <script>
 import _ from 'lodash';
+import axios from 'axios';
 import Loading from './Loading';
 import NoSchedule from './NoSchedule';
+
+axios.defaults.headers.common['Content-type'] = 'application/json';
 
 export default {
   name: 'forget',
@@ -96,24 +99,22 @@ export default {
   },
   methods: {
     fetchSchedule() {
+      const $this = this;
       this.error = null;
       this.scheduleData = null;
       this.loading = true;
-      setTimeout(() => {
-        console.log('before', this.loading);
-        this.loading = false;
-        console.log('after', this.loading);
-        this.scheduleData = [];
-        // this.scheduleData = [
-        //   {
-        //     id: 1,
-        //     title: '提交代码',
-        //     events: '下午记得提交代码',
-        //     remindTime: '2017-07-10 15:23',
-        //     createTime: '2017-07-10 10:23',
-        //   },
-        // ];
-      }, 1000);
+      axios.get('/schedule/all')
+      .then(
+        (response) => {
+          this.loading = false;
+          $this.scheduleData = response.data.schedules;
+        },
+      )
+      .catch(
+        (error) => {
+          console.log('错误： ', error);
+        },
+      );
     },
     open() {
       this.dialog = true;
