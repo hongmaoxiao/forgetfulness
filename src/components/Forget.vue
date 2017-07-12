@@ -184,11 +184,14 @@ export default {
       })
       .then(
         (response) => {
-          console.log('post： ', response);
-          if (data.id > 0) {
-            $this.scheduleData.splice(pos, 1, data);
+          if (response.data.status === 200) {
+            if (data.id > 0) {
+              $this.scheduleData.splice(pos, 1, data);
+            } else {
+              $this.scheduleData.push(_.assign(data, { id: $this.scheduleData.length + 1 }));
+            }
           } else {
-            $this.scheduleData.push(_.assign(data, { id: $this.scheduleData.length + 1 }));
+            console.log('error: ', response.data.msg);
           }
         },
       )
