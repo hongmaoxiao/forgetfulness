@@ -139,12 +139,14 @@ export default {
       this.open();
     },
     deleteSchedule(schedule) {
-      const existIndex = _.findIndex(
-        this.scheduleData, o => o.id === schedule.id,
-      );
-      if (existIndex > -1) {
-        this.scheduleData.splice(existIndex, 1);
-      }
+      this.postDeleteSchedule(schedule, () => {
+        const existIndex = _.findIndex(
+          this.scheduleData, o => o.id === schedule.id,
+        );
+        if (existIndex > -1) {
+          this.scheduleData.splice(existIndex, 1);
+        }
+      });
     },
     addNewSchedule() {
       const checked = this.newSchedule.title && this.newSchedule.events
@@ -184,12 +186,31 @@ export default {
       })
       .then(
         (response) => {
-          if (response.data.status === 200) {
+          if (response.status === 200) {
             if (data.id > 0) {
               $this.scheduleData.splice(pos, 1, data);
             } else {
               $this.scheduleData.push(_.assign(data, { id: $this.scheduleData.length + 1 }));
             }
+          } else {
+            console.log('error: ', response.data.msg);
+          }
+        },
+      )
+      .catch(
+        (error) => {
+          console.log('错误： ', error);
+        },
+      );
+    },
+    postDeleteSchedule(data, cb) {
+      console.log('data: ', data);
+      axios.post(`/schedule/delete/${data.id}`)
+      .then(
+        (response) => {
+          console.log('response: ', response);
+          if (response.status === 200) {
+            cb();
           } else {
             console.log('error: ', response.data.msg);
           }
