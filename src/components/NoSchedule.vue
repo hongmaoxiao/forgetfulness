@@ -1,7 +1,7 @@
 <template>
   <div>
     <mu-paper class="no-schedule-paper" :zDepth="3" :title="title" />
-      <div slot="default">hhahahah</div>
+      <div slot="default">{{title}}</div>
     </mu-paper>
   </div>
 </template>

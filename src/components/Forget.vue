@@ -8,7 +8,7 @@
       <mu-flat-button label="历史提醒" slot="right" />
     </mu-appbar>
     <Loading v-if="loading" />
-    <mu-paper class="demo-paper" :zDepth="3" v-if="this.scheduleData && this.scheduleData.length === 0">
+    <mu-paper class="no-schedule-paper" :zDepth="3" v-if="this.scheduleData && this.scheduleData.length === 0">
       <div slot="default">{{noDataTitle}}</div>
     </mu-paper>
     <!-- <NoSchedule v-if="this.scheduleData && this.scheduleData.length === 0" :title="noDataTitle"/> -->
@@ -34,7 +34,7 @@
       </mu-thead>
       <mu-tbody>
         <mu-tr v-for="item,index in scheduleData"  :key="index" :selected="item.selected">
-          <mu-td>{{index + 1}}</mu-td>
+          <mu-td>{{item.id}}</mu-td>
           <mu-td>{{item.title}}</mu-td>
           <mu-td>{{item.events}}</mu-td>
           <mu-td>{{item.remindTime}}</mu-td>
@@ -64,7 +64,7 @@ import Loading from './Loading';
 import NoSchedule from './NoSchedule';
 
 axios.defaults.headers.common['Content-type'] = 'application/json';
-axios.defaults.headers.post['Content-Type'] = 'application/json';
+// axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 export default {
   name: 'forget',
@@ -77,7 +77,7 @@ export default {
       dialog: false,
       loading: false,
       error: null,
-      noDataTitle: '您今天暂时还没有提醒事项，赶紧来创建一个吧~~~',
+      noDataTitle: '您今天还没有提醒事项，赶紧来创建一个吧~~~',
       scheduleData: null,
       fixedHeader: true,
       fixedFooter: false,
@@ -85,7 +85,6 @@ export default {
       multiSelectable: true,
       enableSelectAll: true,
       showCheckbox: true,
-      height: '300px',
       newSchedule: {
         id: 0,
         title: '',
@@ -108,7 +107,15 @@ export default {
       .then(
         (response) => {
           this.loading = false;
-          $this.scheduleData = response.data.schedules;
+          $this.scheduleData = _.map(response.data.schedules,
+            res => _.assign({}, {
+              id: res.ID,
+              title: res.Title,
+              events: res.Events,
+              remindTime: $this.formatDate(res.RemindTime),
+              createTime: $this.formatDate(res.CreatedAt),
+            }),
+          );
         },
       )
       .catch(
@@ -157,25 +164,32 @@ export default {
           );
         }
         if (existIndex > -1) {
-          this.scheduleData.splice(existIndex, 1, newSchedule);
+          this.postNewSchedule(newSchedule, existIndex);
         } else {
           this.postNewSchedule(newSchedule);
-          this.scheduleData.push(_.assign(newSchedule, { id: this.scheduleData.length + 1 }));
         }
         this.resetNewSchedule();
         this.close();
       }
     },
-    postNewSchedule(data) {
+    postNewSchedule(data, pos) {
+      const $this = this;
+      console.log('data: ', data);
       axios.post('/schedule/edit', {
+        id: data.id,
         title: data.title,
         events: data.events,
         remind_time: data.remindTime,
-        uid: '1',
+        uid: 1,
       })
       .then(
         (response) => {
           console.log('post： ', response);
+          if (data.id > 0) {
+            $this.scheduleData.splice(pos, 1, data);
+          } else {
+            $this.scheduleData.push(_.assign(data, { id: $this.scheduleData.length + 1 }));
+          }
         },
       )
       .catch(
@@ -183,46 +197,6 @@ export default {
           console.log('错误： ', error);
         },
       );
-      // const params = new URLSearchParams();
-      // params.append('title', data.title);
-      // params.append('events', data.events);
-      // params.append('remind_time', data.remindTime);
-      // params.append('uid', 1);
-      // this.$http.post('/schedule/edit', {
-      //   title: data.title,
-      //   events: data.events,
-      //   remind_time: data.remindTime,
-      //   uid: 1,
-      // })
-      // .then((res) => {
-      //   if (res.status === 200) {
-      //     console.log('res: ', res);
-      //   } else {
-      //     alert('用户名或者密码错误！');
-      //   }
-      // }, () => {
-      //   console.log('错误：');
-      // });
-      // const postData = {
-      //   title: data.title,
-      //   events: data.events,
-      //   remind_time: data.remindTime,
-      //   uid: 1,
-      // };
-      // axios({
-      //   method: 'post',
-      //   url: '/schedule/edit',
-      //   data: JSON.stringify(postData),
-      // }).then(
-      //   (response) => {
-      //     console.log('post： ', response);
-      //   },
-      // )
-      // .catch(
-      //   (error) => {
-      //     console.log('错误： ', error);
-      //   },
-      // );
     },
     resetNewSchedule() {
       this.newSchedule = {
@@ -238,8 +212,10 @@ export default {
       const year = date.getFullYear();
       const month = date.getMonth() + 1 < 10 ?
       `0${(date.getMonth() + 1)}` : (date.getMonth() + 1);
-      const day = date.getDate();
-      const hour = date.getHours();
+      const day = date.getDate() < 10 ?
+      `0${date.getDate()}` : (date.getDate());
+      const hour = date.getHours() < 10 ?
+      `0${date.getHours()}` : (date.getHours());
       const minute = date.getMinutes() < 10 ?
       `0${date.getMinutes()}` : (date.getMinutes());
       return `${year}-${month}-${day} ${hour}:${minute}`;
@@ -262,7 +238,7 @@ export default {
   margin-right: 1.5rem;
 }
 
-.demo-paper {
+.no-schedule-paper {
   display: inline-block;
   padding: 0.5vw 3vw;
   margin: 2vw;
