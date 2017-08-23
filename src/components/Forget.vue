@@ -183,9 +183,11 @@ export default {
         events: data.events,
         remind_time: data.remindTime,
         uid: 1,
+        repeat: false,
       })
       .then(
         (response) => {
+          console.log('post: ', response);
           if (response.status === 200) {
             if (data.id > 0) {
               $this.scheduleData.splice(pos, 1, data);
