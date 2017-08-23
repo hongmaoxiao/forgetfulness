@@ -63,9 +63,6 @@ import axios from 'axios';
 import Loading from './Loading';
 import NoSchedule from './NoSchedule';
 
-axios.defaults.headers.common['Content-type'] = 'application/json';
-// axios.defaults.headers.post['Content-Type'] = 'application/json';
-
 export default {
   name: 'forget',
   components: {
@@ -183,6 +180,7 @@ export default {
         events: data.events,
         remind_time: data.remindTime,
         uid: 1,
+        phone: 15010442542,
         repeat: false,
       })
       .then(
@@ -192,7 +190,7 @@ export default {
             if (data.id > 0) {
               $this.scheduleData.splice(pos, 1, data);
             } else {
-              $this.scheduleData.push(_.assign(data, { id: $this.scheduleData.length + 1 }));
+              $this.scheduleData.unshift(_.assign(data, { id: this.getMaxId() + 1 }));
             }
           } else {
             console.log('error: ', response.data.msg);
@@ -232,6 +230,10 @@ export default {
         selectDate: '',
         selectTime: '',
       };
+    },
+    getMaxId() {
+      const { id } = _.maxBy(this.scheduleData, o => o.id);
+      return id;
     },
     formatDate(val) {
       const date = new Date(val);
