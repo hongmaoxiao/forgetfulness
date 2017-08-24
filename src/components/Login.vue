@@ -18,19 +18,23 @@
       </div>
     </div>
     <div v-if="activeTab === 'register'" class="register">
-      <span class="send-code">获取验证码</span>
+      <span class="send-code" @click="fetchCode">获取验证码</span>
       <mu-text-field hintText="请输入手机号" v-model="phone" /><br/>
       <mu-text-field hintText="请输入验证码" v-model="code" /><br/>
-      <mu-text-field hintText="请输入密码" type="password" v-model="registerPassword" />
+      <mu-text-field hintText="请输入密码" type="password" v-model="registerPassword" /><br/>
+      <mu-text-field hintText="请输入确认密码" type="password" v-model="rePassword" />
       <div class="login-btn-wrapper">
         <mu-raised-button label="注册" fullWidth class="register-btn" backgroundColor="#53b63d" />
       </div>
     </div>
+    <mu-toast v-if="toast" class="toast-bar" :message="toastMessage" @close="hideToast"/>
   </div>
 </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'login',
   data() {
@@ -38,13 +42,48 @@ export default {
       phone: '',
       loginPassword: '',
       registerPassword: '',
+      rePassword: '',
       code: '',
       activeTab: 'login',
+      toast: false,
+      toastMessage: '',
+      toastTimer: null,
     };
   },
   methods: {
     handleTabChange(val) {
       this.activeTab = val;
+    },
+    fetchCode() {
+      if (!this.phone) {
+        this.toastMessage = '请先输入手机号码！';
+        this.toast = true;
+        this.toastTimer = setTimeout(() => {
+          this.toast = false;
+        }, 2000);
+        return;
+      }
+      axios.post(`/schedule/regcode?phone=${this.phone}`)
+      .then(
+        (response) => {
+          if (response.status === 200) {
+            console.log('success');
+          } else {
+            console.log('error: ', response.data.msg);
+          }
+        },
+      )
+      .catch(
+        (error) => {
+          console.log('错误： ', error);
+        },
+      );
+    },
+    hideToast() {
+      this.toast = false;
+      if (this.toastTimer) {
+        clearTimeout(this.toastTimer);
+      }
     },
   },
 };
@@ -94,5 +133,9 @@ export default {
 
   .login-btn-wrapper {
     margin-top: 10px;
+  }
+
+  .toast-bar {
+    text-align: center;
   }
 </style>
