@@ -20,13 +20,13 @@
       </div>
     </div>
     <div v-if="activeTab === 'register'" class="register">
-      <span class="send-code" @click="fetchCode">获取验证码</span>
+      <span class="send-code" @click="reg('get_phone_code')">获取验证码</span>
       <mu-text-field hintText="请输入手机号" v-model="phone" /><br/>
       <mu-text-field hintText="请输入短信验证码" v-model="code" /><br/>
       <mu-text-field hintText="请输入密码" type="password" v-model="registerPassword" /><br/>
       <mu-text-field hintText="请输入确认密码" type="password" v-model="rePassword" />
       <div class="login-btn-wrapper">
-        <mu-raised-button label="注册" fullWidth class="register-btn" backgroundColor="#53b63d" />
+        <mu-raised-button @click="reg()" label="注册" fullWidth class="register-btn" backgroundColor="#53b63d" />
       </div>
     </div>
     <mu-toast v-if="toast" class="toast-bar" :message="toastMessage" @close="hideToast"/>
@@ -36,6 +36,7 @@
 
 <script>
 import axios from 'axios';
+import qs from 'qs';
 
 export default {
   name: 'login',
@@ -59,6 +60,50 @@ export default {
     this.getCaptcha();
   },
   methods: {
+    beforeRegisterSubmit() {
+      return !!(this.phone && this.code
+      && this.registerPassword && this.rePassword);
+    },
+    postRegister() {
+      if (!this.beforeRegisterSubmit()) {
+        this.showToast('注册信息填写不全！');
+        return;
+      }
+      if (this.registerPassword !== this.rePassword) {
+        this.showToast('两次的密码不一致！');
+        return;
+      }
+      axios.post('/schedule/register', {
+        code: this.code,
+        phone: this.phone,
+        password: this.registerPassword,
+        repassword: this.rePassword,
+      })
+      .then(
+        (response) => {
+          console.log('register: ', response);
+          const data = response.data;
+          if (response.status === 200) {
+            console.log('success');
+          } else {
+            this.showToast(data.msg);
+          }
+        },
+      )
+      .catch(
+        (error) => {
+          console.log('错误： ', error);
+          this.showToast('网络请求错误，请稍后再试！');
+        },
+      );
+    },
+    reg(code) {
+      if (code === 'get_phone_code') {
+        this.getPhoneCode(code);
+      } else {
+        this.postRegister();
+      }
+    },
     login() {
       console.log('verifyId: ', this.verifyId);
       console.log('verifyCode: ', this.verifyCode);
@@ -69,16 +114,18 @@ export default {
       .then(
         (response) => {
           console.log('login: ', response);
+          const data = response.data;
           if (response.status === 200) {
             console.log('success');
           } else {
-            console.log('error: ', response.data.msg);
+            this.showToast(data.msg);
           }
         },
       )
       .catch(
         (error) => {
           console.log('错误： ', error);
+          this.showToast('网络请求错误，请稍后再试！');
         },
       );
     },
@@ -86,46 +133,58 @@ export default {
       axios.get(`/schedule/getcaptcha?t=${+new Date()}`)
       .then(
         (response) => {
-          console.log('res: ', response.data);
+          // console.log('res: ', response.data);
+          const data = response.data;
           if (response.status === 200) {
-            this.captcha = response.data.captcha;
-            this.verifyId = response.data.id;
+            this.captcha = data.captcha;
+            this.verifyId = data.id;
           } else {
-            console.log('error: ', response.data.msg);
+            this.showToast(data.msg);
           }
         },
       )
       .catch(
         (error) => {
           console.log('错误： ', error);
+          this.showToast('网络请求错误，请稍后再试！');
         },
       );
     },
     handleTabChange(val) {
       this.activeTab = val;
     },
-    fetchCode() {
+    showToast(message) {
+      this.toastMessage = message;
+      this.toast = true;
+      this.toastTimer = setTimeout(() => {
+        this.toast = false;
+      }, 2000);
+    },
+    getPhoneCode(code) {
       if (!this.phone) {
-        this.toastMessage = '请先输入手机号码！';
-        this.toast = true;
-        this.toastTimer = setTimeout(() => {
-          this.toast = false;
-        }, 2000);
+        this.showToast('请先输入手机号码！');
         return;
       }
-      axios.post(`/schedule/regcode?phone=${this.phone}`)
+      axios.post('/schedule/register', qs.stringify({
+        phone: this.phone,
+        code,
+      }))
       .then(
         (response) => {
+          console.log('ssss: ', response);
+          const data = response.data;
+          console.log('regcode: ', data);
           if (response.status === 200) {
             console.log('success');
           } else {
-            console.log('error: ', response.data.msg);
+            this.showToast(data.msg);
           }
         },
       )
       .catch(
         (error) => {
           console.log('错误： ', error);
+          this.showToast('网络请求错误，请稍后再试！');
         },
       );
     },
