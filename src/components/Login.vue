@@ -11,20 +11,23 @@
     </mu-tabs>
     <div v-if="activeTab === 'login'" class="login">
       <img :src="captcha" alt="captcha" class="captcha" @click="getCaptcha()">
-      <mu-text-field hintText="请输入手机号" v-model="phone" /><br/>
-      <mu-text-field hintText="请输入登录密码" type="password" v-model="loginPassword" /><br/>
-      <mu-text-field hintText="请输入图片密码" type="text" v-model="verifyCode" />
+      <mu-text-field hintText="手机号" v-model="phone" /><br/>
+      <mu-text-field hintText="登录密码" type="password" v-model="loginPassword" /><br/>
+      <mu-text-field hintText="图片验证码" type="text" v-model="verifyCode" />
 
       <div class="login-btn-wrapper">
         <mu-raised-button @click="login()" label="登录" fullWidth class="login-btn" backgroundColor="#53b63d"/>
       </div>
     </div>
     <div v-if="activeTab === 'register'" class="register">
-      <span class="send-code" @click="reg('get_phone_code')">获取验证码</span>
-      <mu-text-field hintText="请输入手机号" v-model="phone" /><br/>
-      <mu-text-field hintText="请输入短信验证码" v-model="code" /><br/>
-      <mu-text-field hintText="请输入密码" type="password" v-model="registerPassword" /><br/>
-      <mu-text-field hintText="请输入确认密码" type="password" v-model="rePassword" />
+      <p class="send-code">
+        <span v-show="countdown === 0" class="getcode" @click="reg('get_phone_code')">获取验证码</span>
+        <span v-show="countdown > 0" class="resend">{{countdown}}秒后重试</span>
+      </p>
+      <mu-text-field hintText="手机号" v-model="phone" /><br/>
+      <mu-text-field hintText="短信验证码" v-model="code" /><br/>
+      <mu-text-field hintText="密码" type="password" v-model="registerPassword" /><br/>
+      <mu-text-field hintText="确认密码" type="password" v-model="rePassword" />
       <div class="login-btn-wrapper">
         <mu-raised-button @click="reg()" label="注册" fullWidth class="register-btn" backgroundColor="#53b63d" />
       </div>
@@ -53,7 +56,7 @@ export default {
       toastTimer: null,
       captcha: null,
       verifyCode: '',
-      verifyId: '',
+      countdown: 0,
     };
   },
   mounted() {
@@ -100,16 +103,18 @@ export default {
     reg(code) {
       if (code === 'get_phone_code') {
         this.getPhoneCode(code);
+        this.countdown = 60;
+        this.countDown();
       } else {
         this.postRegister();
       }
     },
     login() {
-      console.log('verifyId: ', this.verifyId);
       console.log('verifyCode: ', this.verifyCode);
       axios.post('/schedule/login', {
         code: this.verifyCode,
-        id: this.verifyId,
+        phone: this.phone,
+        password: this.loginPassword,
       })
       .then(
         (response) => {
@@ -119,6 +124,7 @@ export default {
             console.log('success');
           } else {
             this.showToast(data.msg);
+            this.getCaptcha();
           }
         },
       )
@@ -130,14 +136,12 @@ export default {
       );
     },
     getCaptcha() {
-      axios.get(`/schedule/getcaptcha?t=${+new Date()}`)
+      axios.get(`/schedule/login?t=${+new Date()}`)
       .then(
         (response) => {
-          // console.log('res: ', response.data);
           const data = response.data;
           if (response.status === 200) {
             this.captcha = data.captcha;
-            this.verifyId = data.id;
           } else {
             this.showToast(data.msg);
           }
@@ -194,6 +198,14 @@ export default {
         clearTimeout(this.toastTimer);
       }
     },
+    countDown() {
+      if (this.countdown === 0) {
+        this.countdown = 60;
+      } else {
+        this.countdown -= 1;
+        setTimeout(this.countDown, 1000);
+      }
+    },
   },
 };
 </script>
@@ -231,9 +243,21 @@ export default {
     right: 0;
     height: 35px;
     line-height: 35px;
-    cursor: pointer;
     border-radius: 2px;
+    margin: 0;
+  }
+
+  .send-code > span {
     padding: 0 10px;
+    display: block;
+  }
+
+  .getcode {
+    cursor: pointer;
+  }
+
+  .resend {
+    cursor: not-allowed;
   }
 
   .login,
