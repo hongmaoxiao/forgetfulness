@@ -120,7 +120,8 @@ export default {
         (response) => {
           console.log('login: ', response);
           const data = response.data;
-          if (response.status === 200) {
+          const status = response.status;
+          if (status === 200) {
             console.log('success');
           } else {
             this.showToast(data.msg);
