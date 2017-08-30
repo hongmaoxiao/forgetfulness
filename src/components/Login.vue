@@ -73,6 +73,8 @@ export default {
         return;
       }
       if (this.registerPassword !== this.rePassword) {
+        this.registerPassword = '';
+        this.rePassword = '';
         this.showToast('两次的密码不一致！');
         return;
       }
@@ -86,9 +88,17 @@ export default {
         (response) => {
           console.log('register: ', response);
           const data = response.data;
-          if (response.status === 200) {
+          const status = response.status;
+          if (status === 200) {
             console.log('success');
           } else {
+            if (status === 202 || status === 203) {
+              this.code = '';
+            } else if (status === 206) {
+              this.registerPassword = '';
+              this.rePassword = '';
+              this.code = '';
+            }
             this.showToast(data.msg);
           }
         },
@@ -124,6 +134,10 @@ export default {
           if (status === 200) {
             console.log('success');
           } else {
+            if (status === 203 || status === 206) {
+              this.loginPassword = '';
+            }
+            this.verifyCode = '';
             this.showToast(data.msg);
             this.getCaptcha();
           }
@@ -144,6 +158,9 @@ export default {
           if (response.status === 200) {
             this.captcha = data.captcha;
           } else {
+            if (this.verifyCode) {
+              this.verifyCode = '';
+            }
             this.showToast(data.msg);
           }
         },
@@ -176,12 +193,14 @@ export default {
       }))
       .then(
         (response) => {
-          console.log('ssss: ', response);
           const data = response.data;
           console.log('regcode: ', data);
           if (response.status === 200) {
             console.log('success');
           } else {
+            if (this.code) {
+              this.code = '';
+            }
             this.showToast(data.msg);
           }
         },
