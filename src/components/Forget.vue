@@ -179,8 +179,6 @@ export default {
         title: data.title,
         events: data.events,
         remind_time: data.remindTime,
-        uid: 1,
-        phone: 15010442542,
         repeat: false,
       })
       .then(
