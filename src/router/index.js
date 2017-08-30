@@ -9,8 +9,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'index',
-      component: Forget,
+      name: 'login',
+      component: Login,
     }, {
       path: '/edit',
       name: 'edit',
