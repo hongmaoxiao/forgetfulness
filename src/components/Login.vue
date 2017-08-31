@@ -136,9 +136,10 @@ export default {
           const data = response.data;
           const status = response.status;
           if (status === 200) {
-            console.log('success');
-            this.$cookie.set('uid', data.uid, { expires: '1M' });
-            this.$router.push({ name: 'edit' });
+            if (data.uid) {
+              this.$cookie.set('uid', data.uid, { expires: '1M' });
+              this.$router.push({ name: 'edit' });
+            }
           } else {
             if (status === 203 || status === 206) {
               this.loginPassword = '';

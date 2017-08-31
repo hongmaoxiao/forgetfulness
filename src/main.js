@@ -11,17 +11,16 @@ Vue.config.productionTip = false;
 Vue.use(MuseUI);
 Vue.use(VueCookie);
 
-const checkLogin = ['index', 'edit'];
+const checkLogin = ['edit'];
 
 router.beforeEach((to, from, next) => {
   window.scrollTo(0, 0);
   const mysession = VueCookie.get('uid');
-  const ifMysession = mysession !== 'undefined';
-  if (to.name === 'login' && ifMysession) {
+  if (to.name === 'login' && mysession) {
     router.push('edit');
   }
   if (checkLogin.indexOf(to.name) > -1) {
-    if (ifMysession) {
+    if (mysession) {
       next();
     } else {
       router.push('login');
