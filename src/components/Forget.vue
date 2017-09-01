@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <mu-appbar title="Title">
-      <router-link to="/" class="to-home">
+      <router-link to="/edit" class="to-home">
         首页
       </router-link>
       <mu-flat-button label="新增提醒" slot="right" @click="open" />

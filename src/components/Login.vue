@@ -21,8 +21,8 @@
     </div>
     <div v-if="activeTab === 'register'" class="register">
       <p class="send-code">
-        <span v-show="countdown === 0" class="getcode" @click="reg('get_phone_code')">获取验证码</span>
-        <span v-show="countdown > 0" class="resend">{{countdown}}秒后重试</span>
+        <span v-show="!showCount" class="getcode" @click="reg('get_phone_code')">获取验证码</span>
+        <span v-show="showCount" class="resend">{{countdown}}秒后重试</span>
       </p>
       <mu-text-field hintText="手机号" v-model="phone" /><br/>
       <mu-text-field hintText="短信验证码" v-model="code" /><br/>
@@ -56,13 +56,25 @@ export default {
       toastTimer: null,
       captcha: null,
       verifyCode: '',
-      countdown: 0,
+      countdown: 60,
+      showCount: false,
     };
   },
   mounted() {
     this.getCaptcha();
   },
   methods: {
+    hideCountDown() {
+      this.showCount = false;
+      this.countdown = 60;
+    },
+    showCountDown() {
+      this.showCount = true;
+      if (this.countdown !== 60) {
+        this.countdown = 60;
+      }
+      this.countDown();
+    },
     beforeRegisterSubmit() {
       return !!(this.phone && this.code
       && this.registerPassword && this.rePassword);
@@ -91,7 +103,7 @@ export default {
           const status = response.status;
           if (status === 200) {
             console.log('success');
-            if (!data.uid) {
+            if (data.uid) {
               this.$cookie.set('uid', data.uid, { expires: '1M' });
               this.$router.push({ name: 'edit' });
             }
@@ -103,6 +115,7 @@ export default {
               this.rePassword = '';
               this.code = '';
             }
+            this.hideCountDown();
             this.showToast(data.msg);
           }
         },
@@ -110,6 +123,7 @@ export default {
       .catch(
         (error) => {
           console.log('错误： ', error);
+          this.hideCountDown();
           this.showToast('网络请求错误，请稍后再试！');
         },
       );
@@ -117,14 +131,16 @@ export default {
     reg(code) {
       if (code === 'get_phone_code') {
         this.getPhoneCode(code);
-        this.countdown = 60;
-        this.countDown();
       } else {
         this.postRegister();
       }
     },
     login() {
       console.log('verifyCode: ', this.verifyCode);
+      if (!/\d{6}/.test(this.verifyCode)) {
+        this.showToast('图片验证码须为6位数字!');
+        return;
+      }
       axios.post('/schedule/login', {
         code: this.verifyCode,
         phone: this.phone,
@@ -194,6 +210,7 @@ export default {
         this.showToast('请先输入手机号码！');
         return;
       }
+      this.showCountDown();
       axios.post('/schedule/register', qs.stringify({
         phone: this.phone,
         code,
