@@ -1,4 +1,4 @@
-<template>
+j<template>
   <div class="app">
     <mu-appbar title="Title">
       <router-link to="/edit" class="to-home">
@@ -29,6 +29,7 @@
           <mu-th tooltip="事情">事情</mu-th>
           <mu-th tooltip="提醒时间">提醒时间</mu-th>
           <mu-th tooltip="创建时间">创建时间</mu-th>
+          <mu-th tooltip="状态">状态</mu-th>
           <mu-th tooltip="操作">操作</mu-th>
         </mu-tr>
       </mu-thead>
@@ -39,6 +40,9 @@
           <mu-td>{{item.events}}</mu-td>
           <mu-td>{{item.remindTime}}</mu-td>
           <mu-td>{{item.createTime}}</mu-td>
+          <mu-td>
+            <mu-switch v-model="item.running" :label="item.running ? '开启' : '关闭'" @change="switchRunning(item, index)" />
+          </mu-td>
           <mu-td>
             <mu-raised-button label="修改" backgroundColor="#13ce66" class="modify-btn" slot="default" @click="modifySchedule(item)" />
             <mu-raised-button label="删除" backgroundColor="#ff4949" slot="default" @click="deleteSchedule(item)" />
@@ -59,6 +63,7 @@
 
 <script>
 import _ from 'lodash';
+import qs from 'qs';
 import axios from 'axios';
 import Loading from './Loading';
 import NoSchedule from './NoSchedule';
@@ -95,24 +100,38 @@ export default {
     this.fetchSchedule();
   },
   methods: {
+    switchRunning(item, index) {
+      console.log('item: ', item, index);
+      axios.post('/schedule/switch', qs.stringify({
+        id: item.id,
+        running: item.running,
+      }))
+      .then(
+        (response) => {
+          console.log('post: ', response);
+          if (response.status !== 200) {
+            this.scheduleData[index].running = !item.running;
+            console.log('error: ', response.data.msg);
+          }
+        },
+      )
+      .catch(
+        (error) => {
+          this.scheduleData[index].running = !item.running;
+          console.log('错误： ', error);
+        },
+      );
+    },
     fetchSchedule() {
-      const $this = this;
       this.error = null;
       this.scheduleData = null;
       this.loading = true;
       axios.get('/schedule/all')
       .then(
         (response) => {
+          console.log(response);
           this.loading = false;
-          $this.scheduleData = _.map(response.data.schedules,
-            res => _.assign({}, {
-              id: res.ID,
-              title: res.Title,
-              events: res.Events,
-              remindTime: $this.formatDate(res.RemindTime),
-              createTime: $this.formatDate(res.CreatedAt),
-            }),
-          );
+          this.scheduleData = _.map(response.data.schedules, this.assignSchedule);
         },
       )
       .catch(
@@ -155,7 +174,6 @@ export default {
           title: this.newSchedule.title,
           events: this.newSchedule.events,
           remindTime: `${this.newSchedule.selectDate} ${this.newSchedule.selectTime}`,
-          createTime: this.formatDate(new Date()),
         };
         if (this.newSchedule.id > 0) {
           existIndex = _.findIndex(
@@ -172,8 +190,7 @@ export default {
       }
     },
     postNewSchedule(data, pos) {
-      const $this = this;
-      console.log('data: ', data);
+      console.log('new: ', data);
       axios.post('/schedule/edit', {
         id: data.id,
         title: data.title,
@@ -184,13 +201,20 @@ export default {
       .then(
         (response) => {
           console.log('post: ', response);
-          if (response.status === 200) {
+          const res = response.data && response.data.schedules;
+          const status = response.status;
+          if (status === 200 || status === 208) {
             if (data.id > 0) {
-              $this.scheduleData.splice(pos, 1, data);
+              this.scheduleData.splice(pos, 1, this.assignSchedule(res));
             } else {
-              $this.scheduleData.unshift(_.assign(data, { id: this.getMaxId() + 1 }));
+              this.scheduleData.unshift(this.assignSchedule(res));
+            }
+            if (status === 208) {
+              // to do show error message
+              console.log('error: ', response.data.msg);
             }
           } else {
+            // to do show error message
             console.log('error: ', response.data.msg);
           }
         },
@@ -200,6 +224,16 @@ export default {
           console.log('错误： ', error);
         },
       );
+    },
+    assignSchedule(res) {
+      return _.assign({}, {
+        id: res.ID,
+        title: res.Title,
+        events: res.Events,
+        running: res.Running,
+        remindTime: this.formatDate(res.RemindTime),
+        createTime: this.formatDate(res.CreatedAt),
+      });
     },
     postDeleteSchedule(data, cb) {
       console.log('data: ', data);
