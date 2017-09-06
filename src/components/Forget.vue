@@ -236,7 +236,6 @@ export default {
       });
     },
     postDeleteSchedule(data, cb) {
-      console.log('data: ', data);
       axios.post(`/schedule/delete/${data.id}`)
       .then(
         (response) => {

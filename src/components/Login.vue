@@ -40,6 +40,7 @@
 <script>
 import axios from 'axios';
 import qs from 'qs';
+import fetch from '@/utils/fetch';
 
 export default {
   name: 'login',
@@ -174,24 +175,34 @@ export default {
       );
     },
     getCaptcha() {
-      axios.get(`/schedule/login?t=${+new Date()}`)
+      // axios.get(`/schedule/login?t=${+new Date()}`)
+      // .then(
+      //   (response) => {
+      //     const data = response.data;
+      //     if (response.status === 200) {
+      //       this.captcha = data.captcha;
+      //     } else {
+      //       if (this.verifyCode) {
+      //         this.verifyCode = '';
+      //       }
+      //       this.showToast(data.msg);
+      //     }
+      //   },
+      // )
+      // .catch(
+      //   (error) => {
+      //     console.log('错误： ', error);
+      //     this.showToast('网络请求错误，请稍后再试！');
+      //   },
+      // );
+
+      fetch({
+        url: `/schedule/login?t=${+new Date()}`,
+        method: 'get',
+      })
       .then(
-        (response) => {
-          const data = response.data;
-          if (response.status === 200) {
-            this.captcha = data.captcha;
-          } else {
-            if (this.verifyCode) {
-              this.verifyCode = '';
-            }
-            this.showToast(data.msg);
-          }
-        },
-      )
-      .catch(
-        (error) => {
-          console.log('错误： ', error);
-          this.showToast('网络请求错误，请稍后再试！');
+        (res) => {
+          this.captcha = res.captcha;
         },
       );
     },
