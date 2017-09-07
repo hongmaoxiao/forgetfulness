@@ -41,6 +41,7 @@
 import axios from 'axios';
 import qs from 'qs';
 import fetch from '@/utils/fetch';
+import { setAuthToken } from '@/utils/auth';
 
 export default {
   name: 'login',
@@ -142,67 +143,49 @@ export default {
         this.showToast('图片验证码须为6位数字!');
         return;
       }
-      axios.post('/schedule/login', {
-        code: this.verifyCode,
-        phone: this.phone,
-        password: this.loginPassword,
+      fetch({
+        url: '/schedule/login',
+        method: 'post',
+        data: {
+          code: this.verifyCode,
+          phone: this.phone,
+          password: this.loginPassword,
+        },
       })
       .then(
-        (response) => {
-          console.log('login: ', response);
-          const data = response.data;
-          const status = response.status;
-          if (status === 200) {
-            if (data.uid) {
-              this.$cookie.set('uid', data.uid, { expires: '1M' });
+        (res) => {
+          const code = res.code;
+          if (code === 200) {
+            if (res.token) {
+              setAuthToken(res.token);
               this.$router.push({ name: 'edit' });
             }
           } else {
-            if (status === 203 || status === 206) {
+            if (code === 203 || code === 206) {
               this.loginPassword = '';
             }
             this.verifyCode = '';
-            this.showToast(data.msg);
+            this.showToast(res.msg);
             this.getCaptcha();
           }
-        },
-      )
-      .catch(
-        (error) => {
-          console.log('错误： ', error);
-          this.showToast('网络请求错误，请稍后再试！');
         },
       );
     },
     getCaptcha() {
-      // axios.get(`/schedule/login?t=${+new Date()}`)
-      // .then(
-      //   (response) => {
-      //     const data = response.data;
-      //     if (response.status === 200) {
-      //       this.captcha = data.captcha;
-      //     } else {
-      //       if (this.verifyCode) {
-      //         this.verifyCode = '';
-      //       }
-      //       this.showToast(data.msg);
-      //     }
-      //   },
-      // )
-      // .catch(
-      //   (error) => {
-      //     console.log('错误： ', error);
-      //     this.showToast('网络请求错误，请稍后再试！');
-      //   },
-      // );
-
       fetch({
         url: `/schedule/login?t=${+new Date()}`,
         method: 'get',
       })
       .then(
         (res) => {
-          this.captcha = res.captcha;
+          if (res.code === 200) {
+            this.captcha = res.captcha;
+          } else {
+            if (this.verifyCode) {
+              this.verifyCode = '';
+            }
+            this.showToast(res.msg);
+          }
         },
       );
     },
