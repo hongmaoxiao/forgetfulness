@@ -21,8 +21,7 @@
     </div>
     <div v-if="activeTab === 'register'" class="register">
       <p class="send-code">
-        <span v-show="!showCount" class="getcode" @click="reg('get_phone_code')">获取验证码</span>
-        <span v-show="showCount" class="resend">{{countdown}}秒后重试</span>
+        <span :class="[getcode, { resend: isDisable }]" @click="reg('get_phone_code')">{{countText}}</span>
       </p>
       <mu-text-field hintText="手机号" v-model="phone" /><br/>
       <mu-text-field hintText="短信验证码" v-model="phoneCode" /><br/>
@@ -59,23 +58,26 @@ export default {
       captcha: null,
       verifyCode: '',
       countdown: 60,
-      showCount: false,
+      countText: '获取验证码',
+      getcode: 'getcode',
+      isDisable: false,
     };
   },
-  mounted() {
+  created() {
     this.getCaptcha();
   },
   methods: {
     hideCountDown() {
-      this.showCount = false;
       this.countdown = 60;
+      this.isDisable = false;
+      this.countText = '发送验证码';
     },
     showCountDown() {
-      this.showCount = true;
       if (this.countdown !== 60) {
         this.countdown = 60;
       }
       this.countDown();
+      this.isDisable = true;
     },
     beforeRegisterSubmit() {
       return !!(this.phone && this.phoneCode
@@ -239,10 +241,11 @@ export default {
       }
     },
     countDown() {
-      if (this.countdown === 0) {
-        this.countdown = 60;
+      if (+this.countdown === 0) {
+        this.hideCountDown();
       } else {
         this.countdown -= 1;
+        this.countText = `${this.countdown}秒后重新发送`;
         setTimeout(this.countDown, 1000);
       }
     },

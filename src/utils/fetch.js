@@ -32,7 +32,7 @@ instance.interceptors.response.use((response) => {
   return Promise.reject('error');
 }, (error) => {
   // Do something with response error
-  const status = error.response.status;
+  const status = error.response && error.response.status;
   if (status === 401) {
     router.replace({ name: 'login' });
   }
