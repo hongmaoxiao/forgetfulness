@@ -68,6 +68,7 @@ import qs from 'qs';
 import fetch from '@/utils/fetch';
 import { removeAuthToken } from '@/utils/auth';
 import { getUserInfo, removeUserInfo } from '@/utils/userInfo';
+import formatShowDate from '@/utils/parseTime';
 import Loading from './Loading';
 import NoSchedule from './NoSchedule';
 
@@ -251,8 +252,8 @@ export default {
         title: res.Title,
         events: res.Events,
         running: res.Running,
-        remindTime: this.formatDate(res.RemindTime),
-        createTime: this.formatDate(res.CreatedAt),
+        remindTime: formatShowDate(res.RemindTime),
+        createTime: formatShowDate(res.CreatedAt),
       });
     },
     postDeleteSchedule(data, cb) {
@@ -280,23 +281,10 @@ export default {
         selectTime: '',
       };
     },
-    formatDate(val) {
-      const date = new Date(val);
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1 < 10 ?
-      `0${(date.getMonth() + 1)}` : (date.getMonth() + 1);
-      const day = date.getDate() < 10 ?
-      `0${date.getDate()}` : (date.getDate());
-      const hour = date.getHours() < 10 ?
-      `0${date.getHours()}` : (date.getHours());
-      const minute = date.getMinutes() < 10 ?
-      `0${date.getMinutes()}` : (date.getMinutes());
-      return `${year}-${month}-${day} ${hour}:${minute}`;
-    },
     logout() {
       removeAuthToken();
       removeUserInfo();
-      window.location.reload();
+      this.$router.replace({ name: 'login' });
     },
   },
 };
