@@ -1,4 +1,4 @@
-j<template>
+<template>
   <div class="app">
     <mu-appbar title="Title">
       <router-link to="/edit" class="to-home">
