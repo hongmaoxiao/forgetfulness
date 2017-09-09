@@ -25,7 +25,7 @@
         <span v-show="showCount" class="resend">{{countdown}}秒后重试</span>
       </p>
       <mu-text-field hintText="手机号" v-model="phone" /><br/>
-      <mu-text-field hintText="短信验证码" v-model="code" /><br/>
+      <mu-text-field hintText="短信验证码" v-model="phoneCode" /><br/>
       <mu-text-field hintText="密码" type="password" v-model="registerPassword" /><br/>
       <mu-text-field hintText="确认密码" type="password" v-model="rePassword" />
       <div class="login-btn-wrapper">
@@ -38,10 +38,10 @@
 </template>
 
 <script>
-import axios from 'axios';
 import qs from 'qs';
 import fetch from '@/utils/fetch';
 import { setAuthToken } from '@/utils/auth';
+import { setUserInfo } from '@/utils/userInfo';
 
 export default {
   name: 'login',
@@ -51,7 +51,7 @@ export default {
       loginPassword: '',
       registerPassword: '',
       rePassword: '',
-      code: '',
+      phoneCode: '',
       activeTab: 'login',
       toast: false,
       toastMessage: '',
@@ -78,7 +78,7 @@ export default {
       this.countDown();
     },
     beforeRegisterSubmit() {
-      return !!(this.phone && this.code
+      return !!(this.phone && this.phoneCode
       && this.registerPassword && this.rePassword);
     },
     postRegister() {
@@ -92,41 +92,42 @@ export default {
         this.showToast('两次的密码不一致！');
         return;
       }
-      axios.post('/schedule/register', {
-        code: this.code,
-        phone: this.phone,
-        password: this.registerPassword,
-        repassword: this.rePassword,
+      fetch({
+        url: '/schedule/register',
+        method: 'post',
+        data: {
+          code: this.phoneCode,
+          phone: this.phone,
+          password: this.registerPassword,
+          repassword: this.rePassword,
+        },
       })
       .then(
-        (response) => {
-          console.log('register: ', response);
-          const data = response.data;
-          const status = response.status;
-          if (status === 200) {
-            console.log('success');
-            if (data.uid) {
-              this.$cookie.set('uid', data.uid, { expires: '1M' });
-              this.$router.push({ name: 'edit' });
+        (res) => {
+          const code = res.code;
+          if (code === 200) {
+            if (res.token) {
+              setAuthToken(res.token);
+              setUserInfo(res.user);
+              this.showToast('注册成功！');
+              this.loginSuccess();
             }
           } else {
-            if (status === 202 || status === 203) {
-              this.code = '';
-            } else if (status === 206) {
+            if (code === 202 || code === 203) {
+              this.loginPassword = '';
+            } else if (code === 206) {
               this.registerPassword = '';
               this.rePassword = '';
-              this.code = '';
+              this.phoneCode = '';
             }
             this.hideCountDown();
-            this.showToast(data.msg);
+            this.showToast(res.msg);
           }
         },
       )
       .catch(
-        (error) => {
-          console.log('错误： ', error);
+        () => {
           this.hideCountDown();
-          this.showToast('网络请求错误，请稍后再试！');
         },
       );
     },
@@ -157,8 +158,11 @@ export default {
           const code = res.code;
           if (code === 200) {
             if (res.token) {
+              console.log('res: ', res);
               setAuthToken(res.token);
-              this.$router.push({ name: 'edit' });
+              setUserInfo(res.user);
+              this.showToast('登录成功！');
+              this.loginSuccess();
             }
           } else {
             if (code === 203 || code === 206) {
@@ -199,34 +203,32 @@ export default {
         this.toast = false;
       }, 2000);
     },
-    getPhoneCode(code) {
+    getPhoneCode(phoneCode) {
       if (!this.phone) {
         this.showToast('请先输入手机号码！');
         return;
       }
       this.showCountDown();
-      axios.post('/schedule/register', qs.stringify({
+      const data = qs.stringify({
         phone: this.phone,
-        code,
-      }))
+        code: phoneCode,
+      });
+      fetch({
+        url: '/schedule/register',
+        method: 'post',
+        data,
+      })
       .then(
-        (response) => {
-          const data = response.data;
-          console.log('regcode: ', data);
-          if (response.status === 200) {
-            console.log('success');
+        (res) => {
+          const code = res.code;
+          if (code === 200) {
+            this.showToast('短信已经发送到您的手机，请注意查收！');
           } else {
-            if (this.code) {
-              this.code = '';
+            if (this.phoneCode) {
+              this.phoneCode = '';
             }
             this.showToast(data.msg);
           }
-        },
-      )
-      .catch(
-        (error) => {
-          console.log('错误： ', error);
-          this.showToast('网络请求错误，请稍后再试！');
         },
       );
     },
@@ -243,6 +245,11 @@ export default {
         this.countdown -= 1;
         setTimeout(this.countDown, 1000);
       }
+    },
+    loginSuccess() {
+      setTimeout(() => {
+        this.$router.push({ name: 'edit' });
+      }, 500);
     },
   },
 };

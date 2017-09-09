@@ -25,6 +25,7 @@ module.exports = {
   // add your custom rules here
   'rules': {
     'no-console': 0,
+    'no-param-reassign': ["error", { "props": false }],
     // don't require .vue extension when importing
     'import/extensions': ['error', 'always', {
       'js': 'never',

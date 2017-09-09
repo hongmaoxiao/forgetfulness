@@ -6,6 +6,7 @@ j<template>
       </router-link>
       <mu-flat-button label="新增提醒" slot="right" @click="open" />
       <mu-flat-button label="历史提醒" slot="right" />
+      <mu-flat-button label="退出" slot="right" @click="logout" />
     </mu-appbar>
     <Loading v-if="loading" />
     <mu-paper class="no-schedule-paper" :zDepth="3" v-if="this.scheduleData && this.scheduleData.length === 0">
@@ -64,7 +65,9 @@ j<template>
 <script>
 import _ from 'lodash';
 import qs from 'qs';
-import axios from 'axios';
+import fetch from '@/utils/fetch';
+import { removeAuthToken } from '@/utils/auth';
+import { getUserInfo, removeUserInfo } from '@/utils/userInfo';
 import Loading from './Loading';
 import NoSchedule from './NoSchedule';
 
@@ -102,23 +105,30 @@ export default {
   methods: {
     switchRunning(item, index) {
       console.log('item: ', item, index);
-      axios.post('/schedule/switch', qs.stringify({
+      const data = qs.stringify({
         id: item.id,
         running: item.running,
-      }))
+      });
+      fetch({
+        url: '/schedule/switch',
+        method: 'post',
+        data,
+      })
       .then(
-        (response) => {
-          console.log('post: ', response);
-          if (response.status !== 200) {
+        (res) => {
+          console.log('res', res);
+          const code = res.code;
+          if (code === 200) {
+            // show switch success
+          } else {
             this.scheduleData[index].running = !item.running;
-            console.log('error: ', response.data.msg);
+            // show switch fail
           }
         },
       )
       .catch(
-        (error) => {
+        () => {
           this.scheduleData[index].running = !item.running;
-          console.log('错误： ', error);
         },
       );
     },
@@ -126,17 +136,21 @@ export default {
       this.error = null;
       this.scheduleData = null;
       this.loading = true;
-      axios.get('/schedule/all')
+      fetch({
+        url: '/schedule/all',
+        method: 'get',
+      })
       .then(
-        (response) => {
-          console.log(response);
-          this.loading = false;
-          this.scheduleData = _.map(response.data.schedules, this.assignSchedule);
-        },
-      )
-      .catch(
-        (error) => {
-          console.log('错误： ', error);
+        (res) => {
+          console.log('res', res);
+          const code = res.code;
+          if (code === 200) {
+            this.loading = false;
+            this.scheduleData = _.map(res.schedules, this.assignSchedule);
+          } else {
+            // show toast here
+            // this.showToast(res.msg);
+          }
         },
       );
     },
@@ -190,38 +204,44 @@ export default {
       }
     },
     postNewSchedule(data, pos) {
+      const user = getUserInfo();
+      console.log('user: ', user);
+      if (!user.id) {
+        // show not login
+        this.$router.replace({ name: 'login' });
+      }
       console.log('new: ', data);
-      axios.post('/schedule/edit', {
-        id: data.id,
-        title: data.title,
-        events: data.events,
-        remind_time: data.remindTime,
-        repeat: false,
+      fetch({
+        url: '/schedule/edit',
+        method: 'post',
+        data: {
+          id: data.id,
+          title: data.title,
+          events: data.events,
+          remind_time: data.remindTime,
+          repeat: false,
+          uid: +user.id,
+        },
       })
       .then(
-        (response) => {
-          console.log('post: ', response);
-          const res = response.data && response.data.schedules;
-          const status = response.status;
-          if (status === 200 || status === 208) {
+        (res) => {
+          console.log('res', res);
+          const code = res.code;
+          const schedules = res.schedules;
+          if (code === 200 || code === 208) {
             if (data.id > 0) {
-              this.scheduleData.splice(pos, 1, this.assignSchedule(res));
+              this.scheduleData.splice(pos, 1, this.assignSchedule(schedules));
             } else {
-              this.scheduleData.unshift(this.assignSchedule(res));
+              this.scheduleData.unshift(this.assignSchedule(schedules));
             }
-            if (status === 208) {
+            if (code === 208) {
               // to do show error message
-              console.log('error: ', response.data.msg);
+              console.log('error: ', res.msg);
             }
           } else {
             // to do show error message
-            console.log('error: ', response.data.msg);
+            console.log('error: ', res.msg);
           }
-        },
-      )
-      .catch(
-        (error) => {
-          console.log('错误： ', error);
         },
       );
     },
@@ -236,20 +256,18 @@ export default {
       });
     },
     postDeleteSchedule(data, cb) {
-      axios.post(`/schedule/delete/${data.id}`)
+      fetch({
+        url: `/schedule/delete/${data.id}`,
+        method: 'post',
+      })
       .then(
-        (response) => {
-          console.log('response: ', response);
-          if (response.status === 200) {
+        (res) => {
+          if (res.code === 200) {
             cb();
           } else {
-            console.log('error: ', response.data.msg);
+            // show error here
+            // this.showToast(res.msg);
           }
-        },
-      )
-      .catch(
-        (error) => {
-          console.log('错误： ', error);
         },
       );
     },
@@ -261,10 +279,6 @@ export default {
         selectDate: '',
         selectTime: '',
       };
-    },
-    getMaxId() {
-      const { id } = _.maxBy(this.scheduleData, o => o.id);
-      return id;
     },
     formatDate(val) {
       const date = new Date(val);
@@ -278,6 +292,11 @@ export default {
       const minute = date.getMinutes() < 10 ?
       `0${date.getMinutes()}` : (date.getMinutes());
       return `${year}-${month}-${day} ${hour}:${minute}`;
+    },
+    logout() {
+      removeAuthToken();
+      removeUserInfo();
+      window.location.reload();
     },
   },
 };

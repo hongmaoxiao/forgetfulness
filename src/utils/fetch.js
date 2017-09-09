@@ -1,6 +1,7 @@
 import axios from 'axios';
 import baseUrl from '@/utils/env';
 import { getAuthToken } from '@/utils/auth';
+import router from '@/router';
 
 // Set config defaults when creating the instance
 const instance = axios.create({
@@ -10,11 +11,13 @@ const instance = axios.create({
 });
 
 // Alter defaults after instance has been created
-instance.defaults.headers.common.Authorization = getAuthToken();
 
 // Add a request interceptor
 instance.interceptors.request.use(
-  config => config,
+  (config) => {
+    config.headers.Authorization = getAuthToken();
+    return config;
+  },
   error => Promise.reject(error),
 );
 
@@ -23,15 +26,17 @@ instance.interceptors.request.use(
 instance.interceptors.response.use((response) => {
   // Do something with response data
   const status = response.status;
-  console.log('status: ', status);
   if (status >= 200 && status < 300) {
     return response.data;
   }
-  console.log('您还未登录，请先登录！');
   return Promise.reject('error');
 }, (error) => {
   // Do something with response error
-  console.log('fetch err: ', error);
+  const status = error.response.status;
+  if (status === 401) {
+    router.replace({ name: 'login' });
+  }
+  // console.log('fetch err: ', error);
   return Promise.reject(error);
 });
 
