@@ -6,10 +6,12 @@ import 'muse-ui/dist/muse-ui.css';
 import VueCookie from 'vue-cookie';
 import App from '@/App';
 import router from '@/router';
+import Toast from '@/plugin/toast';
 
 Vue.config.productionTip = false;
 Vue.use(MuseUI);
 Vue.use(VueCookie);
+Vue.use(Toast);
 
 /* eslint-disable no-new */
 new Vue({
