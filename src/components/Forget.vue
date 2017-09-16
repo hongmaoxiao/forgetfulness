@@ -1,15 +1,11 @@
 <template>
   <div class="app">
-    <mu-appbar title="Title">
-      <router-link to="/edit" class="to-home">
-        首页
-      </router-link>
-      <mu-flat-button label="新增提醒" slot="right" @click="open" />
-      <mu-flat-button label="历史提醒" slot="right" />
-      <mu-flat-button label="退出" slot="right" @click="logout" />
-    </mu-appbar>
+    <NavBar />
     <Loading v-if="loading" />
     <NoSchedule v-if="this.scheduleData && this.scheduleData.length === 0" />
+    <div class="add-new">
+      <mu-raised-button label="新增提醒" backgroundColor="#13ce66" slot="right" @click="open" />
+    </div>
     <mu-table
       :fixedFooter="fixedFooter"
       :fixedHeader="fixedHeader"
@@ -63,8 +59,8 @@
 import _ from 'lodash';
 import qs from 'qs';
 import fetch from '@/utils/fetch';
-import { removeAuthToken } from '@/utils/auth';
-import { getUserInfo, removeUserInfo } from '@/utils/userInfo';
+import { getUserInfo } from '@/utils/userInfo';
+import NavBar from '@/components/common/NavBar';
 import formatShowDate from '@/utils/parseTime';
 import Loading from '@/components/common/Loading';
 import NoSchedule from '@/components/NoSchedule';
@@ -74,6 +70,7 @@ export default {
   components: {
     Loading,
     NoSchedule,
+    NavBar,
   },
   data() {
     return {
@@ -277,23 +274,19 @@ export default {
         selectTime: '',
       };
     },
-    logout() {
-      removeAuthToken();
-      removeUserInfo();
-      this.$router.replace({ name: 'login' });
-    },
   },
 };
 </script>
 
 <style scoped>
-.to-home {
-  position: relative;
-  float: left;
-}
-
 .schedule-table {
   margin-top: 5vh;
+}
+
+.add-new {
+  margin: 20px 0;
+  text-align: right;
+  padding-right: 50px;
 }
 
 .modify-btn {
