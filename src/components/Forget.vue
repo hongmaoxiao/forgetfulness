@@ -9,10 +9,7 @@
       <mu-flat-button label="退出" slot="right" @click="logout" />
     </mu-appbar>
     <Loading v-if="loading" />
-    <mu-paper class="no-schedule-paper" :zDepth="3" v-if="this.scheduleData && this.scheduleData.length === 0">
-      <div slot="default">{{noDataTitle}}</div>
-    </mu-paper>
-    <!-- <NoSchedule v-if="this.scheduleData && this.scheduleData.length === 0" :title="noDataTitle"/> -->
+    <NoSchedule v-if="this.scheduleData && this.scheduleData.length === 0" />
     <mu-table
       :fixedFooter="fixedFooter"
       :fixedHeader="fixedHeader"
@@ -69,8 +66,8 @@ import fetch from '@/utils/fetch';
 import { removeAuthToken } from '@/utils/auth';
 import { getUserInfo, removeUserInfo } from '@/utils/userInfo';
 import formatShowDate from '@/utils/parseTime';
-import Loading from './Loading';
-import NoSchedule from './NoSchedule';
+import Loading from '@/components/common/Loading';
+import NoSchedule from '@/components/NoSchedule';
 
 export default {
   name: 'forget',
@@ -83,7 +80,6 @@ export default {
       dialog: false,
       loading: false,
       error: null,
-      noDataTitle: '您今天还没有提醒事项，赶紧来创建一个吧~~~',
       scheduleData: null,
       fixedHeader: true,
       fixedFooter: false,

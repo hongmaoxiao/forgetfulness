@@ -1,6 +1,6 @@
 <template>
-<div class="login-wrapper">
-  <div class="login-inner">
+<div class="full-page login-wrapper">
+  <div class="login-inner vertical-center">
     <mu-tabs
       :value="activeTab"
       @change="handleTabChange"
@@ -246,19 +246,10 @@ export default {
 
 <style>
   .login-wrapper {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
     background: #e8e8e8;
   }
 
   .login-inner {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     background: #fff;
     padding: 30px;
     border-radius: 8px;

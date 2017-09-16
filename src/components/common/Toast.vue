@@ -1,5 +1,5 @@
 <template>
-  <div id="toast" v-if="show">
+  <div id="toast" class="full-page" v-if="show">
     <mu-toast v-if="show" class="toast-bar" :class="position" :message="message" />
   </div>
 </template>
@@ -29,14 +29,6 @@ export default {
 </script>
 
 <style scoped>
-#toast {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-}
-
 .toast-bar {
   position: absolute;
   text-align: center;

@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <mu-paper class="no-schedule-paper" :zDepth="3" :title="title" />
+  <div class="full-page">
+    <mu-paper class="no-schedule-paper vertical-center" :zDepth="3" :title="title">
       <div slot="default">{{title}}</div>
     </mu-paper>
   </div>
@@ -12,7 +12,7 @@ export default {
   name: 'NoSchedule',
   props: {
     title: {
-      type: 'string',
+      type: String,
       default: '您今天暂时还没有提醒事项，赶紧来创建一个吧~~~',
       require: true,
     },
@@ -20,11 +20,10 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .no-schedule-paper {
-  display: inline-block;
-  padding: 0.5vw 3vw;
-  margin: 2vw;
+  padding: 15px 50px;
+  font-size: 18px;
   text-align: center;
 }
 </style>

@@ -3,9 +3,7 @@ import axios from 'axios';
 import baseUrl from '@/utils/env';
 import { getAuthToken } from '@/utils/auth';
 import router from '@/router';
-// import Toast from '@/plugin/toast';
 
-// Vue.use(Toast);
 // Set config defaults when creating the instance
 const instance = axios.create({
   baseURL: baseUrl,
