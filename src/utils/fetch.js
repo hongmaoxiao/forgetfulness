@@ -1,8 +1,11 @@
+import Vue from 'vue';
 import axios from 'axios';
 import baseUrl from '@/utils/env';
 import { getAuthToken } from '@/utils/auth';
 import router from '@/router';
+// import Toast from '@/plugin/toast';
 
+// Vue.use(Toast);
 // Set config defaults when creating the instance
 const instance = axios.create({
   baseURL: baseUrl,
@@ -34,12 +37,12 @@ instance.interceptors.response.use((response) => {
   // Do something with response error
   const status = error.response && error.response.status;
   if (status === 401) {
-    this.$toast.show('您还未登录，请先登录！');
+    Vue.toast.show('您还未登录，请先登录！');
     setTimeout(() => {
       router.replace({ name: 'login' });
     }, 1000);
   }
-  this.$toast.show('网络错误，请重试！');
+  Vue.toast.show('网络错误，请重试！');
   return Promise.reject(error);
 });
 

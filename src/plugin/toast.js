@@ -28,6 +28,7 @@ Toast.install = (Vue, options) => {
       $vm.show = false;
     },
   };
+  Vue.toast = Vue.prototype.$toast;
 };
 
 export default Toast;
