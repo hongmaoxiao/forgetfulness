@@ -1,5 +1,5 @@
 <template>
-  <div class="full-page">
+  <div class="full-page no-schedule-wrapper">
     <mu-paper class="no-schedule-paper vertical-center" :zDepth="3" :title="title">
       <div slot="default">{{title}}</div>
     </mu-paper>
@@ -21,6 +21,10 @@ export default {
 </script>
 
 <style>
+.no-schedule-wrapper {
+  top: 64px;
+}
+
 .no-schedule-paper {
   padding: 15px 50px;
   font-size: 18px;
