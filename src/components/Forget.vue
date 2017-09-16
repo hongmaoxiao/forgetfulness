@@ -116,10 +116,10 @@ export default {
           console.log('res', res);
           const code = res.code;
           if (code === 200) {
-            // show switch success
+            this.$toast.show('切换成功！');
           } else {
             this.scheduleData[index].running = !item.running;
-            // show switch fail
+            this.$toast.show(res.msg);
           }
         },
       )
@@ -145,8 +145,7 @@ export default {
             this.loading = false;
             this.scheduleData = _.map(res.schedules, this.assignSchedule);
           } else {
-            // show toast here
-            // this.showToast(res.msg);
+            this.$toast.show(res.msg);
           }
         },
       );
@@ -172,6 +171,7 @@ export default {
         );
         if (existIndex > -1) {
           this.scheduleData.splice(existIndex, 1);
+          this.$toast.show('删除成功！');
         }
       });
     },
@@ -204,7 +204,10 @@ export default {
       const user = getUserInfo();
       console.log('user: ', user);
       if (!user.id) {
-        // show not login
+        this.$toast.show({
+          message: '您还未登录，请先登录！',
+          time: 1000,
+        });
         this.$router.replace({ name: 'login' });
       }
       console.log('new: ', data);
@@ -232,12 +235,10 @@ export default {
               this.scheduleData.unshift(this.assignSchedule(schedules));
             }
             if (code === 208) {
-              // to do show error message
-              console.log('error: ', res.msg);
+              this.$toast.show(res.msg);
             }
           } else {
-            // to do show error message
-            console.log('error: ', res.msg);
+            this.$toast.show(res.msg);
           }
         },
       );
@@ -262,8 +263,7 @@ export default {
           if (res.code === 200) {
             cb();
           } else {
-            // show error here
-            // this.showToast(res.msg);
+            this.$toast.show(res.msg);
           }
         },
       );
