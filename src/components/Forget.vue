@@ -49,8 +49,8 @@
       </mu-tbody>
     </mu-table>
     <mu-dialog :open="dialog" @close="close" title="新增提醒" scrollable>
-      <mu-text-field label="提醒标题" hintText="请输入标题" labelFloat v-model="newSchedule.title" fullWidth required /><br/>
-      <mu-text-field label="提醒内容" hintText="请输入提醒内容" labelFloat v-model="newSchedule.events" fullWidth required /><br/>
+      <mu-text-field label="提醒标题" hintText="请输入标题" labelFloat v-model.trim="newSchedule.title" fullWidth required /><br/>
+      <mu-text-field label="提醒内容" hintText="请输入提醒内容" labelFloat v-model.trim="newSchedule.events" fullWidth required /><br/>
       <mu-date-picker hintText="请选择提醒日期"　v-model="newSchedule.selectDate" fullWidth required /> <br/>
       <mu-time-picker hintText="请选择提醒时间" v-model="newSchedule.selectTime" format="24hr"　fullWidth required /><br/>
       <mu-raised-button label="取消" backgroundColor="#ff4949" slot="actions" @click="close" />
