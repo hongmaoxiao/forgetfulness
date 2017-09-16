@@ -11,9 +11,9 @@
     </mu-tabs>
     <div v-if="activeTab === 'login'" class="login">
       <img :src="captcha" alt="captcha" class="captcha" @click="getCaptcha()">
-      <mu-text-field hintText="手机号" v-model="phone" /><br/>
-      <mu-text-field hintText="登录密码" type="password" v-model="loginPassword" /><br/>
-      <mu-text-field hintText="图片验证码" type="text" v-model="verifyCode" />
+      <mu-text-field hintText="手机号" v-model.trim="phone" /><br/>
+      <mu-text-field hintText="登录密码" type="password" v-model.trim="loginPassword" /><br/>
+      <mu-text-field hintText="图片验证码" v-model.trim="verifyCode" />
 
       <div class="login-btn-wrapper">
         <mu-raised-button @click="login()" label="登录" fullWidth class="login-btn" backgroundColor="#53b63d"/>
@@ -23,15 +23,14 @@
       <p class="send-code">
         <span :class="[getcode, { resend: isDisable }]" @click="reg('get_phone_code')">{{countText}}</span>
       </p>
-      <mu-text-field hintText="手机号" v-model="phone" /><br/>
-      <mu-text-field hintText="短信验证码" v-model="phoneCode" /><br/>
-      <mu-text-field hintText="密码" type="password" v-model="registerPassword" /><br/>
-      <mu-text-field hintText="确认密码" type="password" v-model="rePassword" />
+      <mu-text-field hintText="手机号" v-model.trim="phone" /><br/>
+      <mu-text-field hintText="短信验证码" v-model.trim="phoneCode" /><br/>
+      <mu-text-field hintText="密码" type="password" v-model.trim="registerPassword" /><br/>
+      <mu-text-field hintText="确认密码" type="password" v-model.trim="rePassword" />
       <div class="login-btn-wrapper">
         <mu-raised-button @click="reg()" label="注册" fullWidth class="register-btn" backgroundColor="#53b63d" />
       </div>
     </div>
-    <mu-toast v-if="toast" class="toast-bar" :message="toastMessage" @close="hideToast"/>
   </div>
 </div>
 </template>
@@ -52,9 +51,6 @@ export default {
       rePassword: '',
       phoneCode: '',
       activeTab: 'login',
-      toast: false,
-      toastMessage: '',
-      toastTimer: null,
       captcha: null,
       verifyCode: '',
       countdown: 60,
@@ -85,13 +81,13 @@ export default {
     },
     postRegister() {
       if (!this.beforeRegisterSubmit()) {
-        this.showToast('注册信息填写不全！');
+        this.$toast.show('注册信息填写不全！');
         return;
       }
       if (this.registerPassword !== this.rePassword) {
         this.registerPassword = '';
         this.rePassword = '';
-        this.showToast('两次的密码不一致！');
+        this.$toast.show('两次的密码不一致！');
         return;
       }
       fetch({
@@ -111,7 +107,7 @@ export default {
             if (res.token) {
               setAuthToken(res.token);
               setUserInfo(res.user);
-              this.showToast('注册成功！');
+              this.$toast.show('注册成功！');
               this.loginSuccess();
             }
           } else {
@@ -123,7 +119,7 @@ export default {
               this.phoneCode = '';
             }
             this.hideCountDown();
-            this.showToast(res.msg);
+            this.$toast.show(res.msg);
           }
         },
       )
@@ -143,7 +139,7 @@ export default {
     login() {
       console.log('verifyCode: ', this.verifyCode);
       if (!/\d{6}/.test(this.verifyCode)) {
-        this.showToast('图片验证码须为6位数字!');
+        this.$toast.show('图片验证码须为6位数字!');
         return;
       }
       fetch({
@@ -163,7 +159,6 @@ export default {
               console.log('res: ', res);
               setAuthToken(res.token);
               setUserInfo(res.user);
-              this.showToast('登录成功！');
               this.loginSuccess();
             }
           } else {
@@ -171,7 +166,7 @@ export default {
               this.loginPassword = '';
             }
             this.verifyCode = '';
-            this.showToast(res.msg);
+            this.$toast.show(res.msg);
             this.getCaptcha();
           }
         },
@@ -190,7 +185,7 @@ export default {
             if (this.verifyCode) {
               this.verifyCode = '';
             }
-            this.showToast(res.msg);
+            this.$toast.show(res.msg);
           }
         },
       );
@@ -198,16 +193,9 @@ export default {
     handleTabChange(val) {
       this.activeTab = val;
     },
-    showToast(message) {
-      this.toastMessage = message;
-      this.toast = true;
-      this.toastTimer = setTimeout(() => {
-        this.toast = false;
-      }, 2000);
-    },
     getPhoneCode(phoneCode) {
       if (!this.phone) {
-        this.showToast('请先输入手机号码！');
+        this.$toast.show('请先输入手机号码！');
         return;
       }
       this.showCountDown();
@@ -224,21 +212,15 @@ export default {
         (res) => {
           const code = res.code;
           if (code === 200) {
-            this.showToast('短信已经发送到您的手机，请注意查收！');
+            this.$toast.show('短信已经发送到您的手机，请注意查收！');
           } else {
             if (this.phoneCode) {
               this.phoneCode = '';
             }
-            this.showToast(data.msg);
+            this.$toast.show(data.msg);
           }
         },
       );
-    },
-    hideToast() {
-      this.toast = false;
-      if (this.toastTimer) {
-        clearTimeout(this.toastTimer);
-      }
     },
     countDown() {
       if (+this.countdown === 0) {
@@ -250,6 +232,10 @@ export default {
       }
     },
     loginSuccess() {
+      this.$toast.show({
+        message: '登录成功！',
+        time: 1000,
+      });
       setTimeout(() => {
         this.$router.push({ name: 'edit' });
       }, 500);
@@ -315,10 +301,6 @@ export default {
 
   .login-btn-wrapper {
     margin-top: 10px;
-  }
-
-  .toast-bar {
-    text-align: center;
   }
 
   .captcha {

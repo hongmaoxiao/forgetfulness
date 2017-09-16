@@ -34,9 +34,12 @@ instance.interceptors.response.use((response) => {
   // Do something with response error
   const status = error.response && error.response.status;
   if (status === 401) {
-    router.replace({ name: 'login' });
+    this.$toast.show('您还未登录，请先登录！');
+    setTimeout(() => {
+      router.replace({ name: 'login' });
+    }, 1000);
   }
-  // console.log('fetch err: ', error);
+  this.$toast.show('网络错误，请重试！');
   return Promise.reject(error);
 });
 

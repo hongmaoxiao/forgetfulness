@@ -1,5 +1,5 @@
 <template>
-  <div id="toast">
+  <div id="toast" v-if="show">
     <mu-toast v-if="show" class="toast-bar" :class="position" :message="message" />
   </div>
 </template>
