@@ -3,7 +3,7 @@
     <router-link to="/edit" class="to-home">
       首页
     </router-link>
-    <mu-flat-button label="历史提醒" slot="right" />
+    <mu-flat-button label="历史提醒" slot="right" to='/history' />
     <mu-flat-button label="退出" slot="right" @click="logout" />
   </mu-appbar>
 </template>

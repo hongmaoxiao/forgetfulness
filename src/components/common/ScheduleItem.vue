@@ -2,8 +2,8 @@
   <div class="app">
     <NavBar />
     <Loading v-if="loading" />
-    <NoSchedule v-if="this.scheduleData && this.scheduleData.length === 0" />
-    <div class="add-new">
+    <NoSchedule v-if="this.scheduleData && this.scheduleData.length === 0" :title="title" />
+    <div class="add-new" v-if="date === 'today'">
       <mu-raised-button label="新增提醒" backgroundColor="#13ce66" slot="right" @click="open" />
     </div>
     <mu-table
@@ -72,6 +72,22 @@ export default {
     NoSchedule,
     NavBar,
   },
+  props: {
+    date: {
+      type: String,
+      default: 'today',
+      require: true,
+    },
+  },
+  computed: {
+    title() {
+      return this.date === 'history'
+      ?
+      '您还没有任何历史提醒事项！'
+      :
+      '您今天暂时还没有提醒事项，赶紧来创建一个吧~~~';
+    },
+  },
   data() {
     return {
       dialog: false,
@@ -98,7 +114,6 @@ export default {
   },
   methods: {
     switchRunning(item, index) {
-      console.log('item: ', item, index);
       const data = qs.stringify({
         id: item.id,
         running: item.running,
@@ -113,7 +128,8 @@ export default {
           console.log('res', res);
           const code = res.code;
           if (code === 200) {
-            this.$toast.show('切换成功！');
+            const msg = item.running ? '开启成功！' : '关闭成功！';
+            this.$toast.show(msg);
           } else {
             this.scheduleData[index].running = !item.running;
             this.$toast.show(res.msg);
@@ -130,8 +146,9 @@ export default {
       this.error = null;
       this.scheduleData = null;
       this.loading = true;
+      const url = this.date === 'history' ? '/schedule/all?period=history' : 'schedule/all';
       fetch({
-        url: '/schedule/all',
+        url,
         method: 'get',
       })
       .then(

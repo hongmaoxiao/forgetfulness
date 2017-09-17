@@ -9,7 +9,7 @@ export default {
   name: 'history',
   data() {
     return {
-      date: 'history',
+      date: 'today',
     };
   },
   components: {
