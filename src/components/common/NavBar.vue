@@ -1,6 +1,6 @@
 <template>
   <mu-appbar title="Title" class="navbar">
-    <router-link to="/edit" class="to-home">
+    <router-link to="/today" class="to-home">
       首页
     </router-link>
     <mu-avatar

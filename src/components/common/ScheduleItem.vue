@@ -1,6 +1,5 @@
 <template>
   <div class="app">
-    <NavBar />
     <Loading v-if="loading" />
     <NoSchedule v-if="this.scheduleData && this.scheduleData.length === 0" :title="title" />
     <div class="add-new" v-if="date === 'today'">

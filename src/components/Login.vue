@@ -237,7 +237,7 @@ export default {
         time: 1000,
       });
       setTimeout(() => {
-        this.$router.push({ name: 'edit' });
+        this.$router.push({ name: 'today' });
       }, 500);
     },
   },
