@@ -2,7 +2,7 @@
 	<div class="app-wrapper">
     <nav-bar />
     <side-bar />
-		<div class="main">
+		<div :class="main">
       <router-view></router-view>
 		</div>
 	</div>
@@ -19,3 +19,15 @@ export default {
   },
 };
 </script>
+<style>
+.main {
+  margin: 0 auto;
+  position: relative;
+  padding: 2em;
+  padding-left: 256px;
+}
+@media screen and (max-width: 900px)
+.main {
+  padding-left: 0;
+}
+</style>

@@ -13,7 +13,6 @@
       :selectable="selectable"
       :showCheckbox="showCheckbox"
       v-if="this.scheduleData && this.scheduleData.length > 0"
-      class="schedule-table"
     >
       <mu-thead slot="header">
         <mu-tr>
@@ -294,10 +293,6 @@ export default {
 </script>
 
 <style scoped>
-.schedule-table {
-  margin-top: 5vh;
-}
-
 .add-new {
   margin: 20px 0;
   text-align: right;
