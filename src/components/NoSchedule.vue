@@ -22,7 +22,7 @@ export default {
 
 <style>
 .no-schedule-wrapper {
-  top: 64px;
+  top: 70px;
 }
 
 .no-schedule-paper {

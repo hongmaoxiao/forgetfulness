@@ -1,5 +1,5 @@
 <template>
-  <mu-appbar title="Title">
+  <mu-appbar title="Title" class="navbar">
     <router-link to="/edit" class="to-home">
       首页
     </router-link>
@@ -84,7 +84,7 @@ export default {
   background: #ddd;
   z-index: 99999;
   position: absolute;
-  top: 64px;
+  top: 70px;
   right: 0px;
   display: inline-block;
   text-align: center;
@@ -102,9 +102,19 @@ export default {
 .list-divider {
   margin: 0;
   height: 1px;
+  margin-top: 1px;
   border: none;
   background-color: rgba(0,0,0,.12);
   width: 100%;
+}
+
+.navbar {
+    height: 70px;
+    line-height: 70px;
+}
+
+.navbar .mu-appbar-title {
+  line-height: 70px;
 }
 
 .navbar-title {

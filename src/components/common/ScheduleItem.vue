@@ -125,7 +125,6 @@ export default {
       })
       .then(
         (res) => {
-          console.log('res', res);
           const code = res.code;
           if (code === 200) {
             const msg = item.running ? '开启成功！' : '关闭成功！';

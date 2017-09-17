@@ -15,6 +15,7 @@ export default {
   font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
   color: #34495e;
   font-size: 14px;
 }
