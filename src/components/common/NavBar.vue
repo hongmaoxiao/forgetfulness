@@ -9,9 +9,8 @@
       backgroundColor="#bdbdbd"
       class="avatar"
       :size="50"
-      @click="toggleDropDown()"
     >
-      {{username}}
+      <span class="username" @click.stop="toggleDropDown">{{username}}</span>
     </mu-avatar>
     <mu-list class="drop-down" v-show="showDropDown">
       <mu-list-item title="个人中心" to="/history" titleClass="list-title"></mu-list-item>
@@ -31,10 +30,12 @@ export default {
     return {
       username: '',
       showDropDown: false,
+      target: false,
     };
   },
   created() {
     this.getUserName();
+    window.addEventListener('click', this.hideDropDown);
   },
   methods: {
     getUserName() {
@@ -42,6 +43,9 @@ export default {
       if (user.phone) {
         this.username = user.phone.slice(user.phone.length - 2);
       }
+    },
+    hideDropDown() {
+      this.showDropDown = false;
     },
     toggleDropDown() {
       this.showDropDown = !this.showDropDown;
@@ -58,11 +62,19 @@ export default {
 .to-home {
   position: relative;
   float: left;
+  margin-left: 20px;
 }
 
 .avatar {
-  cursor: pointer;
   margin-right: 20px;
+}
+
+.username {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
 .drop-down {
@@ -82,7 +94,7 @@ export default {
   line-height: 1.5em;
 }
 
-.list-title:hover {
+.drop-down .mu-item-wrapper:hover .list-title {
   color: #fff;
 }
 
