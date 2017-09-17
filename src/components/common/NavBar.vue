@@ -3,9 +3,21 @@
     <router-link to="/edit" class="to-home">
       首页
     </router-link>
-    <mu-flat-button label="历史提醒" slot="right" to='/history' />
-    <mu-avatar slot="right" color="#fff" backgroundColor="#bdbdbd" class="avatar">{{username}}</mu-avatar>
-    <mu-flat-button label="退出" slot="right" @click="logout" />
+    <mu-avatar
+      slot="right"
+      color="#fff"
+      backgroundColor="#bdbdbd"
+      class="avatar"
+      :size="50"
+      @click="toggleDropDown()"
+    >
+      {{username}}
+    </mu-avatar>
+    <mu-list class="drop-down" v-show="showDropDown">
+      <mu-list-item title="个人中心" to="/history" titleClass="list-title"></mu-list-item>
+      <hr class="list-divider" />
+      <mu-list-item title="退出" @click="logout" titleClass="list-title"></mu-list-item>
+    </mu-list>
   </mu-appbar>
 </template>
 
@@ -18,6 +30,7 @@ export default {
   data() {
     return {
       username: '',
+      showDropDown: false,
     };
   },
   created() {
@@ -29,6 +42,9 @@ export default {
       if (user.phone) {
         this.username = user.phone.slice(user.phone.length - 2);
       }
+    },
+    toggleDropDown() {
+      this.showDropDown = !this.showDropDown;
     },
     logout() {
       removeAuthToken();
@@ -46,5 +62,35 @@ export default {
 
 .avatar {
   cursor: pointer;
+  margin-right: 20px;
+}
+
+.drop-down {
+  padding: 0;
+  max-width: 150px;
+  background: #ddd;
+  z-index: 99999;
+  position: absolute;
+  top: 64px;
+  right: 0px;
+  display: inline-block;
+  text-align: center;
+}
+
+.list-title {
+  font-size: 16px;
+  line-height: 1.5em;
+}
+
+.list-title:hover {
+  color: #fff;
+}
+
+.list-divider {
+  margin: 0;
+  height: 1px;
+  border: none;
+  background-color: rgba(0,0,0,.12);
+  width: 100%;
 }
 </style>
