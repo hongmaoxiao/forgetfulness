@@ -6,7 +6,7 @@
     <mu-avatar
       slot="right"
       color="#fff"
-      backgroundColor="#bdbdbd"
+      backgroundColor="#8a8585"
       class="avatar"
       :size="50"
     >
@@ -63,6 +63,7 @@ export default {
   position: relative;
   float: left;
   margin-left: 20px;
+  color: #fff;
 }
 
 .avatar {
@@ -104,5 +105,9 @@ export default {
   border: none;
   background-color: rgba(0,0,0,.12);
   width: 100%;
+}
+
+.navbar-title {
+  color: #fff;
 }
 </style>
