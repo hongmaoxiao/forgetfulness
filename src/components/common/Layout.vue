@@ -63,7 +63,9 @@ export default {
   margin: 0 auto;
   position: relative;
   padding: 2em 30px 2em 286px;
+	margin-bottom: 40px;
 }
+
 @media screen and (max-width: 900px) {
   .main {
 		padding: 2em 10px;
