@@ -1,15 +1,14 @@
 <template>
   <mu-appbar title="Title" class="navbar">
-    <mu-icon-button slot="left" icon="dehaze" @click="toggleDrawer"></mu-icon-button>
+    <mu-icon-button class="drawer-icon" slot="left" icon="dehaze" @click="toggleDrawer"></mu-icon-button>
     <router-link to="/today" class="to-home">
       首页
     </router-link>
     <mu-avatar
       slot="right"
       color="#fff"
-      backgroundColor="#8a8585"
+      backgroundColor="#af8a8a"
       class="avatar"
-      :size="50"
     >
       <span class="username" @click.stop="toggleDropDown">{{username}}</span>
     </mu-avatar>
@@ -74,6 +73,11 @@ export default {
   margin-right: 20px;
 }
 
+.avatar.mu-avatar {
+  width: 50px;
+  height: 50px;
+}
+
 .username {
     cursor: pointer;
     display: flex;
@@ -85,7 +89,7 @@ export default {
 .drop-down {
   padding: 0;
   max-width: 150px;
-  background: #ddd;
+  background: #f5f0f0;
   z-index: 99999;
   position: absolute;
   top: 70px;
@@ -113,8 +117,8 @@ export default {
 }
 
 .navbar {
-    height: 70px;
-    line-height: 70px;
+  height: 70px;
+  line-height: 70px;
 }
 
 .navbar .mu-appbar-title {
@@ -123,5 +127,62 @@ export default {
 
 .navbar-title {
   color: #fff;
+}
+
+.drawer-icon {
+  display: none;
+}
+
+@media screen and (max-width: 900px) {
+  .drawer-icon {
+    display: block;
+  }
+
+  .to-home {
+    margin-left: 0;
+  }
+
+  .avatar {
+    margin-right: 10px;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .avatar {
+    margin-right: 10px;
+  }
+
+  .drop-down {
+    max-width: 100px;
+    top: 50px;
+  }
+
+  .drop-down .mu-item {
+    min-height: 30px;
+    padding: 8px;
+  }
+
+  .list-title {
+    font-size: 14px;
+  }
+
+  .avatar.mu-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .navbar .mu-appbar-title {
+    padding-left: 0;
+  }
+
+  .navbar {
+    height: 50px;
+    line-height: 50px;
+  }
+
+  .navbar .mu-appbar-title {
+    line-height: 50px;
+  }
 }
 </style>

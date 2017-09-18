@@ -41,8 +41,25 @@ export default {
   padding: 20px 0;
   font-size: 18px;
 }
+
+.sidebar-list .mu-item:hover .list-title {
+    color: #fff;
+}
+
 .sidebar-list .list-title {
   font-size: 18px;
   padding-left: 20px;
+}
+
+@media screen and (max-width: 700px) {
+  .sidebar-drawer {
+    width: 150px;
+    top: 50px;
+  }
+
+  .sidebar-list .mu-item {
+    padding: 10px 17px;
+    min-height: 35px;
+  }
 }
 </style>

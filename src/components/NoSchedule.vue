@@ -30,4 +30,15 @@ export default {
   font-size: 18px;
   text-align: center;
 }
+
+@media screen and (max-width: 700px) {
+  .no-schedule-wrapper {
+    top: 50px;
+  }
+
+  .no-schedule-paper {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+}
 </style>
