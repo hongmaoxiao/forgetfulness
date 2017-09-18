@@ -8,15 +8,11 @@
     <mu-table
       :fixedFooter="fixedFooter"
       :fixedHeader="fixedHeader"
-      :enableSelectAll="enableSelectAll"
-      :multiSelectable="multiSelectable"
-      :selectable="selectable"
       :showCheckbox="showCheckbox"
       v-if="this.scheduleData && this.scheduleData.length > 0"
     >
       <mu-thead slot="header">
         <mu-tr>
-          <mu-th tooltip="ID">ID</mu-th>
           <mu-th tooltip="标题">标题</mu-th>
           <mu-th tooltip="事情">事情</mu-th>
           <mu-th tooltip="提醒时间">提醒时间</mu-th>
@@ -27,7 +23,6 @@
       </mu-thead>
       <mu-tbody>
         <mu-tr v-for="item,index in scheduleData"  :key="index" :selected="item.selected">
-          <mu-td>{{item.id}}</mu-td>
           <mu-td>{{item.title}}</mu-td>
           <mu-td>{{item.events}}</mu-td>
           <mu-td>{{item.remindTime}}</mu-td>
@@ -94,10 +89,7 @@ export default {
       scheduleData: null,
       fixedHeader: true,
       fixedFooter: false,
-      selectable: true,
-      multiSelectable: true,
-      enableSelectAll: true,
-      showCheckbox: true,
+      showCheckbox: false,
       newSchedule: {
         id: 0,
         title: '',
@@ -316,6 +308,7 @@ export default {
     transform: translateX(-50%);
     bottom: 20px;
     top: inherit;
+    right: inherit;
   }
 }
 </style>
