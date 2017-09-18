@@ -306,4 +306,9 @@ export default {
     border-radius: 2px;
     padding: 0 10px;
   }
+  @media screen and (max-width: 900px) {
+    .login-inner {
+      padding: 15px;
+    }
+  }
 </style>
