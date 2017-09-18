@@ -52,7 +52,7 @@ export default {
       this.showDropDown = !this.showDropDown;
     },
     toggleDrawer() {
-      this.$emit('listenToDrawer', true, false);
+      this.$emit('listenToDrawer', true);
     },
     logout() {
       removeAuthToken();

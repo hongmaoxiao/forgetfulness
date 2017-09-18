@@ -46,9 +46,8 @@ export default {
         this.docked = true;
       }
     },
-    toggleDrawer(open, docked) {
+    toggleDrawer(open) {
       this.open = open;
-      this.docked = docked;
     },
     toggleItem(open) {
       this.open = open;
