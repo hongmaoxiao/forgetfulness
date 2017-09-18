@@ -294,9 +294,9 @@ export default {
 
 <style scoped>
 .add-new {
-  margin: 20px 0;
-  text-align: right;
-  padding-right: 50px;
+  position: fixed;
+  top: 100px;
+  right: 50px;
 }
 
 .modify-btn {
@@ -308,5 +308,14 @@ export default {
   padding: 0.5vw 3vw;
   margin: 2vw;
   text-align: center;
+}
+
+@media screen and (max-width: 700px) {
+  .add-new {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 20px;
+    top: inherit;
+  }
 }
 </style>
