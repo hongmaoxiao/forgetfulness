@@ -1,5 +1,6 @@
 <template>
   <mu-appbar title="Title" class="navbar">
+    <mu-icon-button slot="left" icon="dehaze" @click="toggleDrawer"></mu-icon-button>
     <router-link to="/today" class="to-home">
       首页
     </router-link>
@@ -49,7 +50,9 @@ export default {
     },
     toggleDropDown() {
       this.showDropDown = !this.showDropDown;
-      this.$emit('listenToDrawer', this.showDropDown);
+    },
+    toggleDrawer() {
+      this.$emit('listenToDrawer', true, false);
     },
     logout() {
       removeAuthToken();

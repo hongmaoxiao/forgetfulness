@@ -1,7 +1,7 @@
 <template>
 	<div class="app-wrapper">
     <nav-bar @listenToDrawer='toggleDrawer' />
-    <side-bar :open='open' :docked='docked' />
+    <side-bar :open='open' :docked='docked' @listenItemClick='toggleItem' />
 		<div class="main">
       <router-view></router-view>
 		</div>
@@ -47,7 +47,11 @@ export default {
       }
     },
     toggleDrawer(open, docked) {
-      console.log('open: ', open, docked);
+      this.open = open;
+      this.docked = docked;
+    },
+    toggleItem(open) {
+      this.open = open;
     },
   },
   beforeDestroy() {

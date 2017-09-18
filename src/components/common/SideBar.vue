@@ -1,6 +1,6 @@
 <template>
-  <mu-drawer class="sidebar-drawer" :open="open" :docked="docked" @close="toggle()">
-    <mu-list class="sidebar-list" @itemClick="docked ? '' : toggle()">
+  <mu-drawer class="sidebar-drawer" :open="open" :docked="docked">
+    <mu-list class="sidebar-list" @itemClick="toggleItem">
       <mu-list-item title="今日提醒" to="/today" titleClass="list-title"></mu-list-item>
       <mu-list-item title="历史提醒" to="/history" titleClass="list-title"></mu-list-item>
     </mu-list>
@@ -24,9 +24,10 @@ export default {
     },
   },
   methods: {
-    toggle(flag) {
-      this.open = !this.open;
-      this.docked = !flag;
+    toggleItem() {
+      if (!this.docked) {
+        this.$emit('listenItemClick', false);
+      }
     },
   },
 };
