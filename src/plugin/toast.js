@@ -22,7 +22,7 @@ Toast.install = (Vue, options) => {
       $vm.show = true;
       setTimeout(() => {
         $vm.show = false;
-      }, opt.time ? opt.time : 2000);
+      }, opt && opt.time ? opt.time : 2000);
     },
     hide() {
       $vm.show = false;

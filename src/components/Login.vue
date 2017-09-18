@@ -179,13 +179,14 @@ export default {
       })
       .then(
         (res) => {
+          console.log(res);
           if (res.code === 200) {
             this.captcha = res.captcha;
           } else {
             if (this.verifyCode) {
               this.verifyCode = '';
             }
-            this.$toast.show(res.msg);
+            this.$toast.show(res.msg ? res.msg : '验证码获取失败！');
           }
         },
       );

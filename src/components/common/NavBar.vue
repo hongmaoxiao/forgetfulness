@@ -49,6 +49,7 @@ export default {
     },
     toggleDropDown() {
       this.showDropDown = !this.showDropDown;
+      this.$emit('listenToDrawer', this.showDropDown);
     },
     logout() {
       removeAuthToken();

@@ -11,11 +11,17 @@
 
 export default {
   name: 'sidebar',
-  data() {
-    return {
-      docked: true,
-      open: true,
-    };
+  props: {
+    open: {
+      type: Boolean,
+      default: true,
+      require: true,
+    },
+    docked: {
+      type: Boolean,
+      default: true,
+      require: true,
+    },
   },
   methods: {
     toggle(flag) {
