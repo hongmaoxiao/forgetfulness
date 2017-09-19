@@ -4,6 +4,7 @@ import Layout from '@/components/common/Layout';
 import Today from '@/components/Today';
 import Login from '@/components/Login';
 import History from '@/components/HistorySchedule';
+import User from '@/components/User';
 
 Vue.use(Router);
 export default new Router({
@@ -22,6 +23,11 @@ export default new Router({
       redirect: '/history/index',
       component: Layout,
       children: [{ path: 'index', component: History, name: 'history' }],
+    }, {
+      path: '/user',
+      redirect: '/user/index',
+      component: Layout,
+      children: [{ path: 'index', component: User, name: 'user' }],
     }, {
       path: '/login',
       name: 'login',

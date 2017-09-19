@@ -13,7 +13,7 @@
       <span class="username" @click.stop="toggleDropDown">{{username}}</span>
     </mu-avatar>
     <mu-list class="drop-down" v-show="showDropDown">
-      <mu-list-item title="个人中心" to="/history" titleClass="list-title"></mu-list-item>
+      <mu-list-item title="个人中心" to="/user" titleClass="list-title"></mu-list-item>
       <hr class="list-divider" />
       <mu-list-item title="退出" @click="logout" titleClass="list-title"></mu-list-item>
     </mu-list>
