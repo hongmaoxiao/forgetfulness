@@ -37,9 +37,14 @@
 
 <script>
 import qs from 'qs';
-import fetch from '@/utils/fetch';
 import { setAuthToken } from '@/utils/auth';
 import { setUserInfo } from '@/utils/userInfo';
+import {
+  fetchCaptchaCode,
+  loginVerification,
+  registerVerification,
+  fetchPhoneCode,
+} from '@/api/login';
 
 export default {
   name: 'login',
@@ -90,39 +95,33 @@ export default {
         this.$toast.show('两次的密码不一致！');
         return;
       }
-      fetch({
-        url: '/schedule/register',
-        method: 'post',
-        data: {
-          code: this.phoneCode,
-          phone: this.phone,
-          password: this.registerPassword,
-          repassword: this.rePassword,
-        },
-      })
-      .then(
-        (res) => {
-          const code = res.code;
-          if (code === 200) {
-            if (res.token) {
-              setAuthToken(res.token);
-              setUserInfo(res.user);
-              this.$toast.show('注册成功！');
-              this.loginSuccess();
-            }
-          } else {
-            if (code === 202 || code === 203) {
-              this.loginPassword = '';
-            } else if (code === 206) {
-              this.registerPassword = '';
-              this.rePassword = '';
-              this.phoneCode = '';
-            }
-            this.hideCountDown();
-            this.$toast.show(res.msg);
+      const data = {
+        code: this.phoneCode,
+        phone: this.phone,
+        password: this.registerPassword,
+        repassword: this.rePassword,
+      };
+      registerVerification(data).then((res) => {
+        const code = res.code;
+        if (code === 200) {
+          if (res.token) {
+            setAuthToken(res.token);
+            setUserInfo(res.user);
+            this.$toast.show('注册成功！');
+            this.loginSuccess();
           }
-        },
-      )
+        } else {
+          if (code === 202 || code === 203) {
+            this.loginPassword = '';
+          } else if (code === 206) {
+            this.registerPassword = '';
+            this.rePassword = '';
+            this.phoneCode = '';
+          }
+          this.hideCountDown();
+          this.$toast.show(res.msg);
+        }
+      })
       .catch(
         () => {
           this.hideCountDown();
@@ -137,59 +136,44 @@ export default {
       }
     },
     login() {
-      console.log('verifyCode: ', this.verifyCode);
       if (!/\d{6}/.test(this.verifyCode)) {
         this.$toast.show('图片验证码须为6位数字!');
         return;
       }
-      fetch({
-        url: '/schedule/login',
-        method: 'post',
-        data: {
-          code: this.verifyCode,
-          phone: this.phone,
-          password: this.loginPassword,
-        },
-      })
-      .then(
-        (res) => {
-          const code = res.code;
-          if (code === 200) {
-            if (res.token) {
-              console.log('res: ', res);
-              setAuthToken(res.token);
-              setUserInfo(res.user);
-              this.loginSuccess();
-            }
-          } else {
-            if (code === 203 || code === 206) {
-              this.loginPassword = '';
-            }
-            this.verifyCode = '';
-            this.$toast.show(res.msg);
-            this.getCaptcha();
+      const data = {
+        code: this.verifyCode,
+        phone: this.phone,
+        password: this.loginPassword,
+      };
+      loginVerification(data).then((res) => {
+        const code = res.code;
+        if (code === 200) {
+          if (res.token) {
+            setAuthToken(res.token);
+            setUserInfo(res.user);
+            this.loginSuccess();
           }
-        },
-      );
+        } else {
+          if (code === 203 || code === 206) {
+            this.loginPassword = '';
+          }
+          this.verifyCode = '';
+          this.$toast.show(res.msg);
+          this.getCaptcha();
+        }
+      });
     },
     getCaptcha() {
-      fetch({
-        url: `/schedule/login?t=${+new Date()}`,
-        method: 'get',
-      })
-      .then(
-        (res) => {
-          console.log(res);
-          if (res.code === 200) {
-            this.captcha = res.captcha;
-          } else {
-            if (this.verifyCode) {
-              this.verifyCode = '';
-            }
-            this.$toast.show(res.msg ? res.msg : '验证码获取失败！');
+      fetchCaptchaCode().then((res) => {
+        if (res.code === 200) {
+          this.captcha = res.captcha;
+        } else {
+          if (this.verifyCode) {
+            this.verifyCode = '';
           }
-        },
-      );
+          this.$toast.show(res.msg ? res.msg : '验证码获取失败！');
+        }
+      });
     },
     handleTabChange(val) {
       this.activeTab = val;
@@ -204,24 +188,17 @@ export default {
         phone: this.phone,
         code: phoneCode,
       });
-      fetch({
-        url: '/schedule/register',
-        method: 'post',
-        data,
-      })
-      .then(
-        (res) => {
-          const code = res.code;
-          if (code === 200) {
-            this.$toast.show('短信已经发送到您的手机，请注意查收！');
-          } else {
-            if (this.phoneCode) {
-              this.phoneCode = '';
-            }
-            this.$toast.show(data.msg);
+      fetchPhoneCode(data).then((res) => {
+        const code = res.code;
+        if (code === 200) {
+          this.$toast.show('短信已经发送到您的手机，请注意查收！');
+        } else {
+          if (this.phoneCode) {
+            this.phoneCode = '';
           }
-        },
-      );
+          this.$toast.show(res.msg);
+        }
+      });
     },
     countDown() {
       if (+this.countdown === 0) {
