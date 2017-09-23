@@ -135,9 +135,11 @@ export default {
       this.error = null;
       this.scheduleData = null;
       this.loading = true;
-      const url = this.date === 'history' ? '/schedule/all?period=history' : 'schedule/all';
       fetch({
-        url,
+        url: '/schedule/all',
+        params: {
+          period: this.date === 'history' ? 'history' : 'today',
+        },
         method: 'get',
       })
       .then(

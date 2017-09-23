@@ -16,7 +16,8 @@
 </template>
 
 <script>
-import { getUserInfo } from '@/utils/userInfo';
+import fetchUserInfo from '@/api/user';
+import { getUserInfo, setUserInfo } from '@/utils/userInfo';
 
 export default {
   name: 'User',
@@ -31,11 +32,22 @@ export default {
   },
   methods: {
     assignUserInfo() {
-      const user = getUserInfo();
-      if (user.phone) {
-        this.phone = user.phone;
-        this.messages = user.messages;
-      }
+      const olduser = getUserInfo();
+      this.fetchUserData(olduser);
+    },
+    fetchUserData(olduser) {
+      fetchUserInfo(olduser.id).then((res) => {
+        if (res.code === 200) {
+          const user = res.user;
+          this.phone = user.phone;
+          this.messages = user.messages;
+          if (+olduser.messages !== +user.messages) {
+            setUserInfo(user);
+          }
+        } else {
+          this.$toast.show(res.msg);
+        }
+      });
     },
   },
 };
