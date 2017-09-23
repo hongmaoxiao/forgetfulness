@@ -51,12 +51,17 @@
 <script>
 import _ from 'lodash';
 import qs from 'qs';
-import fetch from '@/utils/fetch';
-import { getUserInfo } from '@/utils/userInfo';
 import NavBar from '@/components/common/NavBar';
 import formatShowDate from '@/utils/parseTime';
-import Loading from '@/components/common/Loading';
 import NoSchedule from '@/components/NoSchedule';
+import Loading from '@/components/common/Loading';
+import { getUserInfo } from '@/utils/userInfo';
+import {
+  fetchSchedules,
+  editSchedule,
+  deleteSchedule,
+  switchScheduleStatus,
+} from '@/api/schedule';
 
 export default {
   name: 'forget',
@@ -100,7 +105,7 @@ export default {
     };
   },
   created() {
-    this.fetchSchedule();
+    this.getSchedules();
   },
   methods: {
     switchRunning(item, index) {
@@ -108,52 +113,34 @@ export default {
         id: item.id,
         running: item.running,
       });
-      fetch({
-        url: '/schedule/switch',
-        method: 'post',
-        data,
-      })
-      .then(
-        (res) => {
-          const code = res.code;
-          if (code === 200) {
-            const msg = item.running ? '开启成功！' : '关闭成功！';
-            this.$toast.show(msg);
-          } else {
-            this.scheduleData[index].running = !item.running;
-            this.$toast.show(res.msg);
-          }
-        },
-      )
-      .catch(
-        () => {
+      switchScheduleStatus(data).then((res) => {
+        const code = res.code;
+        if (code === 200) {
+          const msg = item.running ? '开启成功！' : '关闭成功！';
+          this.$toast.show(msg);
+        } else {
           this.scheduleData[index].running = !item.running;
-        },
-      );
+          this.$toast.show(res.msg);
+        }
+      })
+      .catch(() => {
+        this.scheduleData[index].running = !item.running;
+      });
     },
-    fetchSchedule() {
+    getSchedules() {
       this.error = null;
       this.scheduleData = null;
       this.loading = true;
-      fetch({
-        url: '/schedule/all',
-        params: {
-          period: this.date === 'history' ? 'history' : 'today',
-        },
-        method: 'get',
-      })
-      .then(
-        (res) => {
-          console.log('res', res);
-          const code = res.code;
-          if (code === 200) {
-            this.loading = false;
-            this.scheduleData = _.map(res.schedules, this.assignSchedule);
-          } else {
-            this.$toast.show(res.msg);
-          }
-        },
-      );
+      const period = this.date === 'history' ? 'history' : 'today';
+      fetchSchedules(period).then((res) => {
+        const code = res.code;
+        if (code === 200) {
+          this.loading = false;
+          this.scheduleData = _.map(res.schedules, this.assignSchedule);
+        } else {
+          this.$toast.show(res.msg);
+        }
+      });
     },
     open() {
       this.dialog = true;
@@ -197,15 +184,15 @@ export default {
           );
         }
         if (existIndex > -1) {
-          this.postNewSchedule(newSchedule, existIndex);
+          this.postEditSchedule(newSchedule, existIndex);
         } else {
-          this.postNewSchedule(newSchedule);
+          this.postEditSchedule(newSchedule);
         }
         this.resetNewSchedule();
         this.close();
       }
     },
-    postNewSchedule(data, pos) {
+    postEditSchedule(data, pos) {
       const user = getUserInfo();
       console.log('user: ', user);
       if (!user.id) {
@@ -215,38 +202,30 @@ export default {
         });
         this.$router.replace({ name: 'login' });
       }
-      console.log('new: ', data);
-      fetch({
-        url: '/schedule/edit',
-        method: 'post',
-        data: {
-          id: data.id,
-          title: data.title,
-          events: data.events,
-          remind_time: data.remindTime,
-          repeat: false,
-          uid: +user.id,
-        },
-      })
-      .then(
-        (res) => {
-          console.log('res', res);
-          const code = res.code;
-          const schedules = res.schedules;
-          if (code === 200 || code === 208) {
-            if (data.id > 0) {
-              this.scheduleData.splice(pos, 1, this.assignSchedule(schedules));
-            } else {
-              this.scheduleData.unshift(this.assignSchedule(schedules));
-            }
-            if (code === 208) {
-              this.$toast.show(res.msg);
-            }
+      const schedule = {
+        id: data.id,
+        title: data.title,
+        events: data.events,
+        remind_time: data.remindTime,
+        repeat: false,
+        uid: +user.id,
+      };
+      editSchedule(schedule).then((res) => {
+        const code = res.code;
+        const schedules = res.schedules;
+        if (code === 200 || code === 208) {
+          if (data.id > 0) {
+            this.scheduleData.splice(pos, 1, this.assignSchedule(schedules));
           } else {
+            this.scheduleData.unshift(this.assignSchedule(schedules));
+          }
+          if (code === 208) {
             this.$toast.show(res.msg);
           }
-        },
-      );
+        } else {
+          this.$toast.show(res.msg);
+        }
+      });
     },
     assignSchedule(res) {
       return _.assign({}, {
@@ -259,19 +238,13 @@ export default {
       });
     },
     postDeleteSchedule(data, cb) {
-      fetch({
-        url: `/schedule/delete/${data.id}`,
-        method: 'post',
-      })
-      .then(
-        (res) => {
-          if (res.code === 200) {
-            cb();
-          } else {
-            this.$toast.show(res.msg);
-          }
-        },
-      );
+      deleteSchedule(data.id).then((res) => {
+        if (res.code === 200) {
+          cb();
+        } else {
+          this.$toast.show(res.msg);
+        }
+      });
     },
     resetNewSchedule() {
       this.newSchedule = {

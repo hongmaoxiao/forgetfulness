@@ -122,11 +122,9 @@ export default {
           this.$toast.show(res.msg);
         }
       })
-      .catch(
-        () => {
-          this.hideCountDown();
-        },
-      );
+      .catch(() => {
+        this.hideCountDown();
+      });
     },
     reg(code) {
       if (code === 'get_phone_code') {
