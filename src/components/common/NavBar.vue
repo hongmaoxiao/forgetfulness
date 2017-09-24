@@ -12,7 +12,7 @@
     >
       <span class="username" @click.stop="toggleDropDown">{{username}}</span>
     </mu-avatar>
-    <mu-list class="drop-down" v-show="showDropDown">
+    <mu-list class="drop-down user-info-dropdown" v-show="showDropDown">
       <mu-list-item title="个人中心" to="/user" titleClass="list-title"></mu-list-item>
       <hr class="list-divider" />
       <mu-list-item title="退出" @click="logout" titleClass="list-title"></mu-list-item>
@@ -86,7 +86,7 @@ export default {
     align-items: center;
 }
 
-.drop-down {
+.user-info-dropdown {
   padding: 0;
   max-width: 150px;
   background: #f5f0f0;
@@ -103,11 +103,15 @@ export default {
   line-height: 1.5em;
 }
 
-.drop-down .mu-item-wrapper:hover .list-title {
+.user-info-dropdown .mu-item-wrapper:hover .list-title {
   color: #fff;
 }
 
-.list-divider {
+.user-info-dropdown:hover .list-divider {
+    background-color: #f5f0f0;
+}
+
+.user-info-dropdown .list-divider {
   margin: 0;
   height: 1px;
   margin-top: 1px;
@@ -152,12 +156,12 @@ export default {
     margin-right: 10px;
   }
 
-  .drop-down {
+  .user-info-dropdown {
     max-width: 100px;
     top: 50px;
   }
 
-  .drop-down .mu-item {
+  .user-info-dropdown .mu-item {
     min-height: 30px;
     padding: 8px;
   }
