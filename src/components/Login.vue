@@ -9,20 +9,31 @@
       <mu-tab value="login" title="登录"/>
       <mu-tab value="register" title="注册"/>
     </mu-tabs>
+    <p class="send-code" v-show="showSendCode">
+      <span :class="[getcode, { resend: isDisable }]" @click="reg('get_phone_code')">{{countText}}</span>
+    </p>
     <div v-if="activeTab === 'login'" class="login">
-      <img :src="captcha" alt="captcha" class="captcha" @click="getCaptcha()">
+      <img :src="captcha" alt="captcha" v-show="!quick" class="captcha" @click="getCaptcha()">
+      <!-- <p class="send-code">
+        <span :class="[getcode, { resend: isDisable }]" @click="reg('get_phone_code')">{{countText}}</span>
+      </p> -->
       <mu-text-field hintText="手机号" v-model.trim="phone" /><br/>
-      <mu-text-field hintText="登录密码" type="password" v-model.trim="loginPassword" /><br/>
-      <mu-text-field hintText="图片验证码" v-model.trim="verifyCode" />
-
+      <mu-text-field hintText="登录密码" v-show="!quick" type="password" v-model.trim="loginPassword" />
+      <br v-show="!quick" />
+      <mu-text-field hintText="验证码" v-show="!quick" v-model.trim="verifyCode" />
+      <mu-text-field hintText="短信验证码" v-show="quick" v-model.trim="phoneCode" />
+      <div class="login-direct clearfix">
+        <button type="button" class="pull-left fast-login" @click="quick = !quick">{{loginType}}</button>
+        <span class="pull-right forget-password" v-show="!quick">忘记密码？</span>
+      </div>
       <div class="login-btn-wrapper">
         <mu-raised-button @click="login()" label="登录" fullWidth class="login-btn" backgroundColor="#53b63d"/>
       </div>
     </div>
     <div v-if="activeTab === 'register'" class="register">
-      <p class="send-code">
+      <!-- <p class="send-code">
         <span :class="[getcode, { resend: isDisable }]" @click="reg('get_phone_code')">{{countText}}</span>
-      </p>
+      </p> -->
       <mu-text-field hintText="手机号" v-model.trim="phone" /><br/>
       <mu-text-field hintText="短信验证码" v-model.trim="phoneCode" /><br/>
       <mu-text-field hintText="密码" type="password" v-model.trim="registerPassword" /><br/>
@@ -42,6 +53,7 @@ import { setUserInfo } from '@/utils/userInfo';
 import {
   fetchCaptchaCode,
   loginVerification,
+  quickLoginVerification,
   registerVerification,
   fetchPhoneCode,
 } from '@/api/login';
@@ -62,10 +74,19 @@ export default {
       countText: '获取验证码',
       getcode: 'getcode',
       isDisable: false,
+      quick: false,
     };
   },
   created() {
     this.getCaptcha();
+  },
+  computed: {
+    loginType() {
+      return this.quick ? '密码登录' : '快速登录';
+    },
+    showSendCode() {
+      return this.activeTab === 'register' ? true : this.quick;
+    },
   },
   methods: {
     hideCountDown() {
@@ -105,10 +126,7 @@ export default {
         const code = res.code;
         if (code === 200) {
           if (res.token) {
-            setAuthToken(res.token);
-            setUserInfo(res.user);
-            this.$toast.show('注册成功！');
-            this.loginSuccess();
+            this.loginSuccess(res, 'register');
           }
         } else {
           if (code === 202 || code === 203) {
@@ -134,6 +152,29 @@ export default {
       }
     },
     login() {
+      if (this.quick) {
+        this.quickLogin();
+      } else {
+        this.passwordLogin();
+      }
+    },
+    quickLogin() {
+      const data = qs.stringify({
+        code: this.phoneCode,
+        phone: this.phone,
+      });
+      quickLoginVerification(data).then((res) => {
+        const code = res.code;
+        if (code === 200) {
+          if (res.token) {
+            this.loginSuccess(res);
+          }
+        } else {
+          this.$toast.show(res.msg);
+        }
+      });
+    },
+    passwordLogin() {
       if (!/\d{6}/.test(this.verifyCode)) {
         this.$toast.show('图片验证码须为6位数字!');
         return;
@@ -147,9 +188,7 @@ export default {
         const code = res.code;
         if (code === 200) {
           if (res.token) {
-            setAuthToken(res.token);
-            setUserInfo(res.user);
-            this.loginSuccess();
+            this.loginSuccess(res);
           }
         } else {
           if (code === 203 || code === 206) {
@@ -177,6 +216,10 @@ export default {
       });
     },
     handleTabChange(val) {
+      console.log('val: ', val);
+      if (this.isDisable) {
+        this.hideCountDown();
+      }
       this.activeTab = val;
     },
     getPhoneCode(phoneCode) {
@@ -210,9 +253,11 @@ export default {
         setTimeout(this.countDown, 1000);
       }
     },
-    loginSuccess() {
+    loginSuccess(obj, type) {
+      setAuthToken(obj.token);
+      setUserInfo(obj.user);
       this.$toast.show({
-        message: '登录成功！',
+        message: type === 'register' ? '注册成功！' : '登录成功！',
         time: 1000,
       });
       setTimeout(() => {
@@ -243,8 +288,10 @@ export default {
     border: 1px solid green;
     position: absolute;
     z-index: 10;
-    top: 54px;
-    right: 0;
+    /*top: 54px;
+    right: 0;*/
+    top: 155px;
+    right: 32px;
     height: 35px;
     line-height: 35px;
     border-radius: 2px;
@@ -284,6 +331,24 @@ export default {
     border-radius: 2px;
     padding: 0 10px;
   }
+
+  .login-direct {
+    margin-bottom: 10px;
+  }
+
+  .login-direct > span {
+    cursor: pointer;
+  }
+
+  .login-direct .fast-login {
+    color: #5ca5e8;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    cursor: pointer;
+    padding: 0;
+  }
+
   @media screen and (max-width: 900px) {
     .login-inner {
       padding: 15px;

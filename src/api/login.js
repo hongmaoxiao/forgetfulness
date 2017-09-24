@@ -11,6 +11,12 @@ const loginVerification = data => fetch({
   data,
 });
 
+const quickLoginVerification = data => fetch({
+  url: '/schedule/quicklogin',
+  method: 'post',
+  data,
+});
+
 const registerVerification = data => fetch({
   url: '/schedule/register',
   method: 'post',
@@ -26,6 +32,7 @@ const fetchPhoneCode = data => fetch({
 export {
   fetchCaptchaCode,
   loginVerification,
+  quickLoginVerification,
   registerVerification,
   fetchPhoneCode,
 };

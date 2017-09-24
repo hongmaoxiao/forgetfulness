@@ -12,3 +12,31 @@
   top: 50%;
   transform: translate(-50%, -50%);
 }
+
+.pull-left {
+  float: left !important;
+}
+
+.pull-right {
+  float: right !important;
+}
+
+.clearfix {
+  zoom: 1;
+}
+
+.clearfix::before {
+  content: '';
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+.clearfix::after {
+  content: '';
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
