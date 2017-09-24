@@ -132,8 +132,13 @@ export default {
       this.error = null;
       this.scheduleData = null;
       this.loading = true;
-      const period = this.date === 'history' ? 'history' : 'today';
-      fetchSchedules(period).then((res) => {
+      const user = getUserInfo();
+      this.checkIfLogined(user);
+      const params = {
+        period: this.date === 'history' ? 'history' : 'today',
+        uid: +user.id,
+      };
+      fetchSchedules(params).then((res) => {
         const code = res.code;
         if (code === 200) {
           this.loading = false;
@@ -212,9 +217,7 @@ export default {
         return true;
       });
     },
-    postEditSchedule(data, pos) {
-      const user = getUserInfo();
-      console.log('user: ', user);
+    checkIfLogined(user) {
       if (!user.id) {
         this.$toast.show({
           message: '您还未登录，请先登录！',
@@ -222,6 +225,10 @@ export default {
         });
         this.$router.replace({ name: 'login' });
       }
+    },
+    postEditSchedule(data, pos) {
+      const user = getUserInfo();
+      this.checkIfLogined(user);
       const schedule = {
         id: data.id,
         title: data.title,

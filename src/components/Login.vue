@@ -10,13 +10,10 @@
       <mu-tab value="register" title="注册"/>
     </mu-tabs>
     <p class="send-code" v-show="showSendCode">
-      <span :class="[getcode, { resend: isDisable }]" @click="reg('get_phone_code')">{{countText}}</span>
+      <span :class="[getcode, { resend: isDisable }]" @click="getPhoneCode">{{countText}}</span>
     </p>
     <div v-if="activeTab === 'login'" class="login">
       <img :src="captcha" alt="captcha" v-show="!quick" class="captcha" @click="getCaptcha()">
-      <!-- <p class="send-code">
-        <span :class="[getcode, { resend: isDisable }]" @click="reg('get_phone_code')">{{countText}}</span>
-      </p> -->
       <mu-text-field hintText="手机号" v-model.trim="phone" /><br/>
       <mu-text-field hintText="登录密码" v-show="!quick" type="password" v-model.trim="loginPassword" />
       <br v-show="!quick" />
@@ -31,15 +28,12 @@
       </div>
     </div>
     <div v-if="activeTab === 'register'" class="register">
-      <!-- <p class="send-code">
-        <span :class="[getcode, { resend: isDisable }]" @click="reg('get_phone_code')">{{countText}}</span>
-      </p> -->
       <mu-text-field hintText="手机号" v-model.trim="phone" /><br/>
       <mu-text-field hintText="短信验证码" v-model.trim="phoneCode" /><br/>
       <mu-text-field hintText="密码" type="password" v-model.trim="registerPassword" /><br/>
       <mu-text-field hintText="确认密码" type="password" v-model.trim="rePassword" />
       <div class="login-btn-wrapper">
-        <mu-raised-button @click="reg()" label="注册" fullWidth class="register-btn" backgroundColor="#53b63d" />
+        <mu-raised-button @click="reg" label="注册" fullWidth class="register-btn" backgroundColor="#53b63d" />
       </div>
     </div>
   </div>
@@ -105,7 +99,7 @@ export default {
       return !!(this.phone && this.phoneCode
       && this.registerPassword && this.rePassword);
     },
-    postRegister() {
+    reg() {
       if (!this.beforeRegisterSubmit()) {
         this.$toast.show('注册信息填写不全！');
         return;
@@ -144,13 +138,6 @@ export default {
         this.hideCountDown();
       });
     },
-    reg(code) {
-      if (code === 'get_phone_code') {
-        this.getPhoneCode(code);
-      } else {
-        this.postRegister();
-      }
-    },
     login() {
       if (this.quick) {
         this.quickLogin();
@@ -169,6 +156,8 @@ export default {
           if (res.token) {
             this.loginSuccess(res);
           }
+        } else if (code === 201) {
+          this.$toast.show(res.msg);
         } else {
           this.$toast.show(res.msg);
         }
@@ -216,13 +205,12 @@ export default {
       });
     },
     handleTabChange(val) {
-      console.log('val: ', val);
       if (this.isDisable) {
         this.hideCountDown();
       }
       this.activeTab = val;
     },
-    getPhoneCode(phoneCode) {
+    getPhoneCode() {
       if (!this.phone) {
         this.$toast.show('请先输入手机号码！');
         return;
@@ -230,7 +218,7 @@ export default {
       this.showCountDown();
       const data = qs.stringify({
         phone: this.phone,
-        code: phoneCode,
+        code: this.quick ? 'login' : 'register',
       });
       fetchPhoneCode(data).then((res) => {
         const code = res.code;

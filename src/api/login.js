@@ -24,7 +24,7 @@ const registerVerification = data => fetch({
 });
 
 const fetchPhoneCode = data => fetch({
-  url: '/schedule/register',
+  url: '/schedule/receivephonecode',
   method: 'post',
   data,
 });

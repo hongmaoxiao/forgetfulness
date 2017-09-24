@@ -1,11 +1,9 @@
 import fetch from '@/utils/fetch';
 
-const fetchSchedules = period => fetch({
+const fetchSchedules = params => fetch({
   url: '/schedule/all',
   method: 'get',
-  params: {
-    period,
-  },
+  params,
 });
 
 const editSchedule = data => fetch({
