@@ -37,6 +37,11 @@
       </div>
     </div>
   </div>
+  <mu-dialog :open="dialog" @close="close" title="注册确认">
+    该手机好未注册，您确定要用该手机号注册吗？
+    <mu-raised-button label="取消" backgroundColor="#ff4949" slot="actions" @click="close" />
+    <mu-raised-button label="确定" backgroundColor="#13ce66" slot="actions" @click="confirm" />
+  </mu-dialog>
 </div>
 </template>
 
@@ -69,6 +74,7 @@ export default {
       getcode: 'getcode',
       isDisable: false,
       quick: false,
+      dialog: false,
     };
   },
   created() {
@@ -156,10 +162,8 @@ export default {
           if (res.token) {
             this.loginSuccess(res);
           }
-        } else if (code === 201) {
-          this.$toast.show(res.msg);
         } else {
-          this.$toast.show(res.msg);
+          this.notRegister(res);
         }
       });
     },
@@ -225,12 +229,19 @@ export default {
         if (code === 200) {
           this.$toast.show('短信已经发送到您的手机，请注意查收！');
         } else {
-          if (this.phoneCode) {
-            this.phoneCode = '';
-          }
-          this.$toast.show(res.msg);
+          this.notRegister(res);
         }
       });
+    },
+    notRegister(res) {
+      if (res.code === 201) {
+        this.open();
+      } else {
+        this.$toast.show(res.msg);
+      }
+      if (this.phoneCode) {
+        this.phoneCode = '';
+      }
     },
     countDown() {
       if (+this.countdown === 0) {
@@ -251,6 +262,16 @@ export default {
       setTimeout(() => {
         this.$router.push({ name: 'today' });
       }, 500);
+    },
+    open() {
+      this.dialog = true;
+    },
+    close() {
+      this.dialog = false;
+    },
+    confirm() {
+      this.handleTabChange('register');
+      this.close();
     },
   },
 };
