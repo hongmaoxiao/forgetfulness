@@ -56,6 +56,7 @@ import formatShowDate from '@/utils/parseTime';
 import NoSchedule from '@/components/NoSchedule';
 import Loading from '@/components/common/Loading';
 import { getUserInfo } from '@/utils/userInfo';
+import fetchUserInfo from '@/api/user';
 import {
   fetchSchedules,
   editSchedule,
@@ -168,6 +169,11 @@ export default {
       });
     },
     addNewSchedule() {
+      const bool = this.checkMessagesEnough();
+      if (!bool) {
+        this.$toast.show('短信余额已不足，请先充值！');
+        return;
+      }
       const checked = this.newSchedule.title && this.newSchedule.events
       && this.newSchedule.selectDate && this.newSchedule.selectTime;
       if (checked) {
@@ -191,6 +197,20 @@ export default {
         this.resetNewSchedule();
         this.close();
       }
+    },
+    checkMessagesEnough() {
+      const localUser = getUserInfo();
+      fetchUserInfo(localUser.id).then((res) => {
+        if (res.code === 200) {
+          const user = res.user;
+          if (+user.messages > 0) {
+            return true;
+          }
+          return false;
+        }
+        // 获取用户信息失败，就先让提交，在后台进行再次判断
+        return true;
+      });
     },
     postEditSchedule(data, pos) {
       const user = getUserInfo();

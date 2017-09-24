@@ -163,7 +163,10 @@ export default {
     },
     getCaptcha() {
       fetchCaptchaCode().then((res) => {
-        if (res.code === 200) {
+        // 验证登录token是否正确，如果返回201，说明正确，直接跳转
+        if (res.code === 201) {
+          this.$router.push({ name: 'today' });
+        } else if (res.code === 200) {
           this.captcha = res.captcha;
         } else {
           if (this.verifyCode) {

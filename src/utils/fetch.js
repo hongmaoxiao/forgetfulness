@@ -34,13 +34,15 @@ instance.interceptors.response.use((response) => {
 }, (error) => {
   // Do something with response error
   const status = error.response && error.response.status;
+  console.log('error: ', status);
   if (status === 401) {
     Vue.toast.show('您还未登录，请先登录！');
     setTimeout(() => {
       router.replace({ name: 'login' });
     }, 1000);
+  } else {
+    Vue.toast.show('网络错误，请重试！');
   }
-  Vue.toast.show('网络错误，请重试！');
   return Promise.reject(error);
 });
 
