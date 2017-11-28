@@ -174,47 +174,57 @@ export default {
       });
     },
     addNewSchedule() {
-      const bool = this.checkMessagesEnough();
-      if (!bool) {
-        this.$toast.show('短信余额已不足，请先充值！');
-        return;
-      }
-      const checked = this.newSchedule.title && this.newSchedule.events
-      && this.newSchedule.selectDate && this.newSchedule.selectTime;
-      if (checked) {
-        let existIndex = -1;
-        const newSchedule = {
-          id: this.newSchedule.id,
-          title: this.newSchedule.title,
-          events: this.newSchedule.events,
-          remindTime: `${this.newSchedule.selectDate} ${this.newSchedule.selectTime}`,
-        };
-        if (this.newSchedule.id > 0) {
-          existIndex = _.findIndex(
-            this.scheduleData, o => o.id === this.newSchedule.id,
-          );
+      this.checkMessagesEnough((b) => {
+        const bool = b;
+        if (!bool) {
+          this.$toast.show('短信余额已不足，请先充值！');
+          return;
         }
-        if (existIndex > -1) {
-          this.postEditSchedule(newSchedule, existIndex);
-        } else {
-          this.postEditSchedule(newSchedule);
+        const checked = this.newSchedule.title && this.newSchedule.events
+        && this.newSchedule.selectDate && this.newSchedule.selectTime;
+        console.log('checked: ', checked);
+        if (checked) {
+          let existIndex = -1;
+          const newSchedule = {
+            id: this.newSchedule.id,
+            title: this.newSchedule.title,
+            events: this.newSchedule.events,
+            remindTime: `${this.newSchedule.selectDate} ${this.newSchedule.selectTime}`,
+          };
+          if (this.newSchedule.id > 0) {
+            existIndex = _.findIndex(
+              this.scheduleData, o => o.id === this.newSchedule.id,
+            );
+          }
+          if (existIndex > -1) {
+            this.postEditSchedule(newSchedule, existIndex);
+          } else {
+            this.postEditSchedule(newSchedule);
+          }
+          this.resetNewSchedule();
+          this.close();
         }
-        this.resetNewSchedule();
-        this.close();
-      }
+      });
     },
-    checkMessagesEnough() {
+    checkMessagesEnough(cb) {
       const localUser = getUserInfo();
       fetchUserInfo(localUser.id).then((res) => {
         if (res.code === 200) {
           const user = res.user;
           if (+user.messages > 0) {
-            return true;
+            if (cb) {
+              cb(true);
+            }
+            return;
           }
-          return false;
+          if (cb) {
+            cb(false);
+          }
         }
         // 获取用户信息失败，就先让提交，在后台进行再次判断
-        return true;
+        if (cb) {
+          cb(true);
+        }
       });
     },
     checkIfLogined(user) {
