@@ -10,11 +10,12 @@
 
 不支持本地运行，只能在线上使用，地址是[[https://weidayouyi.com](https://weidayouyi.com/)]([https://weidayouyi.com](https://weidayouyi.com/))，目前每个人有20条短信免费量。后期打算做个小程序版的，支持弹出微信提醒，大概像潮汐日历一样，完全免费。
 
-以下为注册、登录、创建提醒、收到提醒全过程：
+以下为注册、登录、创建提醒：
 
-![](https://github.com/hongmaoxiao/forgetfulness/blob/master/doc/forget.gif)
+>![](https://github.com/hongmaoxiao/forgetfulness/blob/master/doc/forget.gif)
 
-![](https://github.com/hongmaoxiao/forgetfulness/blob/master/doc/message.png)
+收到提醒:
+><img src="https://github.com/hongmaoxiao/forgetfulness/blob/master/doc/message.png" width="200" height="355" alt="短信" align=center />
 
 ## License
 
