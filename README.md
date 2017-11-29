@@ -15,7 +15,7 @@
 >![](https://github.com/hongmaoxiao/forgetfulness/blob/master/doc/forget.gif)
 
 收到提醒:
-><img src="https://github.com/hongmaoxiao/forgetfulness/blob/master/doc/message.png" width="200" height="355" alt="短信" align=center />
+><img src="https://github.com/hongmaoxiao/forgetfulness/blob/master/doc/message.png" width="300" height="533" alt="短信" align=center />
 
 ## License
 
